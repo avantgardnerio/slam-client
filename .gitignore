@@ -1,0 +1,11 @@
+# bower
+bower_components
+
+# node
+node_modules
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+
