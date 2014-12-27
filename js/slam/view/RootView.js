@@ -11,6 +11,7 @@ define([
         var cnvMain;
         var ctx;
         var background;
+        var imgData;
 
         var init = function() {
             cnvMain = $('<canvas/>')[0];
@@ -44,7 +45,12 @@ define([
         };
 
         var draw = function() {
-            ctx.drawImage(background, 0, 0, background.width, background.height);
+            if(background.width > 0 && background.height > 0) {
+                ctx.drawImage(background, 0, 0, background.width, background.height);
+                if(imgData === undefined) {
+                    imgData = ctx.getImageData(0, 0, background.width, background.height).data;
+                }
+            }
         };
 
         init();

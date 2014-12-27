@@ -9,3 +9,5 @@ node_modules
 *.ipr
 *.iws
 
+# Java
+WEB-INF
