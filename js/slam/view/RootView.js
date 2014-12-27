@@ -11,7 +11,7 @@ define([
         var cnvMain;
         var ctx;
         var background;
-        var imgData;
+        var bitmap;
 
         var init = function() {
             cnvMain = $('<canvas/>')[0];
@@ -47,8 +47,20 @@ define([
         var draw = function() {
             if(background.width > 0 && background.height > 0) {
                 ctx.drawImage(background, 0, 0, background.width, background.height);
-                if(imgData === undefined) {
-                    imgData = ctx.getImageData(0, 0, background.width, background.height).data;
+                if(bitmap === undefined) {
+                    parseMap();
+                }
+            }
+        };
+
+        var parseMap = function() {
+            bitmap = [];
+            var imgData = ctx.getImageData(0, 0, background.width, background.height).data;
+            for(var y = 0; y < background.height; y++) {
+                for(var x = 0; x < background.width; x++) {
+                    var i = y * background.height * 3 + x * 3;
+                    var hasWall = imgData[i + 0] < 255 || imgData[i + 0] < 255 || imgData[i + 0] < 255;
+                    bitmap[y * background.height + x] = hasWall;
                 }
             }
         };
