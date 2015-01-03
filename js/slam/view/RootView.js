@@ -69,7 +69,7 @@ define([
                     timer = setTimeout(parseMap, 1);
                 }
             } else {
-                //map.draw(ctx, PX_PER_IN);
+                map.draw(ctx, PX_PER_IN);
                 robot.draw(ctx, PX_PER_IN);
             }
 

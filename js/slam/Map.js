@@ -5,16 +5,19 @@ define([
         var self = {};
 
         var WALL_THRESHOLD = 100;
-        var bitmap = [];
+        var probability = [];
 
         var ctor = function() {
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
                     var i = y * width * 4 + x * 4;
+
+                    // Populate probability map
                     var hasWall = imgData[i + 0] < WALL_THRESHOLD
                         && imgData[i + 1] < WALL_THRESHOLD
                         && imgData[i + 2] < WALL_THRESHOLD;
-                    bitmap[y * width + x] = hasWall;
+                    var p = hasWall ? 1 : 0;
+                    probability[y * width + x] = p;
                 }
             }
         };
@@ -25,20 +28,23 @@ define([
             if(x < 0 || y < 0 || x > width || y > height) {
                 return true;
             }
-            return bitmap[y * width + x];
+            return probability[y * width + x];
         };
 
         self.draw = function(ctx) {
-            var oldFill = ctx.fillStyle;
-            ctx.fillStyle = '#0000FF';
+            var imgData = ctx.createImageData(width, height);
+            var bitmap = imgData.data;
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
-                    if(self.testObstruction(x, y)) {
-                        ctx.fillRect(x, y, 1, 1);
-                    }
+                    var p = probability[y * width + x];
+                    var i = y * width * 4 + x * 4;
+                    bitmap[i + 0] = 0;
+                    bitmap[i + 1] = 0;
+                    bitmap[i + 2] = 255;
+                    bitmap[i + 3] = Math.round(p * 255);
                 }
             }
-            ctx.fillStyle = oldFill;
+            ctx.putImageData(imgData, 0, 0);
         };
 
         ctor();
