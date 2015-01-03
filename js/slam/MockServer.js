@@ -1,7 +1,9 @@
 define([
+    'slam/Map'
 ], function(
+    Map
 ) {
-    var MockRobot = function MockRobot(map) {
+    var MockRobot = function MockRobot(imgData) {
         var self = {};
 
         var SIZE = [6, 6];      // Inches
@@ -13,6 +15,14 @@ define([
         var actualPos = [800,700];
         var actualDir = 0;
 
+        var map;
+
+        var ctor = function() {
+            map = new Map(imgData.width, imgData.height);
+            map.fromImage(imgData.data);
+        };
+
+        // ------------------------------------- public methods -------------------------------------------------------
         self.scan = function(cb, scale) {
             var samples = [];
             for(var mastRad = -Math.PI; mastRad <= Math.PI; mastRad += SAMPLE_RAD) {
@@ -33,7 +43,7 @@ define([
                 }
                 samples.push({radians: mastRad, inches: dist});
             }
-            cb(samples);
+            setTimeout(function() {cb(samples)}, 100);
         };
 
         self.drive = function(dist, cb) {
@@ -47,6 +57,7 @@ define([
             setTimeout(function() {cb(radians)}, 100);
         };
 
+        // --------------------------------------- test methods -------------------------------------------------------
         self.drawSamples = function(ctx, scale, samples) {
             var oldFill = ctx.fillStyle;
 
@@ -81,6 +92,7 @@ define([
             ctx.strokeStyle = oldStroke;
         };
 
+        ctor();
         return self;
     };
 

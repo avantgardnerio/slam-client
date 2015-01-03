@@ -1,10 +1,12 @@
 define([
     'jquery',
     'slam/MockServer',
+    'slam/SlamClient',
     'slam/Map'
 ], function(
     $,
-    Robot,
+    SlamServer,
+    SlamClient,
     Map
 ) {
     var RootView = function() {
@@ -17,20 +19,22 @@ define([
         var cnvMain;
         var ctx;
         var background;
-        var robot;
-        var map;
-        var timer;
 
-        var samples; // TODO: Collect samples elsewhere
+        var server;
+        var client;
 
         var init = function() {
+
+            // Create the canvas
             cnvMain = $('<canvas/>')[0];
             ctx = cnvMain.getContext("2d");
 
+            // Load the background image
             background = $('<img/>')[0];
-            $(background).ready(function() { self.invalidate(); });
+            $(background).ready(onImgLoad);
             $(background).attr('src', 'img/floor_plan_example.png'); // TODO: Un hard code
 
+            // Handle window resizing
             $(window).resize(onResize);
             onResize();
         };
@@ -47,55 +51,38 @@ define([
             window.requestAnimationFrame(draw);
         };
 
-
-        var onResize = function() {
-            $(cnvMain).attr('width', $(window).innerWidth());
-            $(cnvMain).attr('height', $(window).innerHeight());
-            self.invalidate();
-        };
-
+        // -------------------------------------- private methods -----------------------------------------------------
         var draw = function() {
-            if(background.width <= 0 || background.height <= 0) {
-                console.log('No image yet!');
+            if(server === undefined) {
                 return;
             }
 
             // Image
             ctx.drawImage(background, 0, 0, background.width, background.height);
 
-            // Map
-            if(map === undefined) {
-                if(timer === undefined) {
-                    timer = setTimeout(parseMap, 1);
-                }
-            } else {
-                map.draw(ctx, PX_PER_IN);
-                robot.draw(ctx, PX_PER_IN);
-            }
-
-            // Samples
-            if(samples !== undefined) {
-                robot.drawSamples(ctx, PX_PER_IN, samples);
-            }
+            // Have the server draw itself (no-op on the real server, because it doesn't know where it is!)
+            server.draw(ctx, PX_PER_IN);
         };
 
-        var tick = function() {
-
-            robot.turn(0.5, self.invalidate);
-            robot.drive(12 * PX_PER_IN, self.invalidate);
-
-            robot.scan(function(s) {samples = s;}, PX_PER_IN);
-
-            self.invalidate();
+        // ---------------------------------------- helper methods ----------------------------------------------------
+        var onImgLoad = function() {
+            ctx.drawImage(background, 0, 0, background.width, background.height);
+            setTimeout(parseMap, 100);
         };
 
         var parseMap = function() {
-            var imgData = ctx.getImageData(0, 0, background.width, background.height).data;
-            map = new Map(background.width, background.height);
-            map.fromImage(imgData);
-            robot = new Robot(map);
+            var imgData = ctx.getImageData(0, 0, background.width, background.height);
+            server = new SlamServer(imgData);
+            client = new SlamClient(server, background.width, background.height);
+
             self.invalidate();
-            setInterval(tick, 100);
+            client.start();
+        };
+
+        var onResize = function() {
+            $(cnvMain).attr('width', $(window).innerWidth());
+            $(cnvMain).attr('height', $(window).innerHeight());
+            self.invalidate();
         };
 
         init();

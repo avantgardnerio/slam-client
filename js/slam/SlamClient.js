@@ -20,6 +20,14 @@ define([
             }
         };
 
+        self.start = function() {
+            server.scan(onScanComplete);
+        };
+
+        var onScanComplete = function(samples) {
+            history.push({action: 'scan', data: samples});
+        };
+
         ctor();
         return self;
     };
