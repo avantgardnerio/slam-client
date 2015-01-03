@@ -50,16 +50,18 @@ define([
                     var idxHi = Math.min(Math.ceil(idx), samples.length-1);
                     var sampleLo = samples[idxLo].inches;
                     var sampleHi = samples[idxHi].inches;
-                    if(sampleLo === undefined && sampleHi === undefined) {
-                        continue;
-                    }
-                    var sample = sampleLo ? sampleLo : sampleHi;
-                    if(sampleLo !== undefined && sampleHi !== undefined) {
-                        sample = sampleLo * (1-Math.abs(idx - idxLo)) + sampleHi * (1-Math.abs(idx - idxHi));
-                    }
-                    sample *= PX_PER_IN;
 
-                    var observation = pdf(dist, sample);
+                    var observation;
+                    if(sampleLo === undefined && sampleHi === undefined) {
+                        observation = 0;
+                    } else {
+                        var sample = sampleLo ? sampleLo : sampleHi;
+                        if(sampleLo !== undefined && sampleHi !== undefined) {
+                            sample = sampleLo * (1-Math.abs(idx - idxLo)) + sampleHi * (1-Math.abs(idx - idxHi));
+                        }
+                        sample *= PX_PER_IN;
+                        observation = pdf(dist, sample);
+                    }
                     if(observation === undefined) {
                         continue;
                     }
