@@ -42,13 +42,13 @@ define([
                     }
 
                     // Find the closest samples and interpolate
-                    var ang = Math.atan2(x, y);
+                    var ang = Math.atan2(y, x);
                     var normAng = (ang + Math.PI) / (Math.PI*2);
                     var idx = normAng * (samples.length-1);
                     var idxLo = Math.max(Math.floor(idx), 0);
                     var idxHi = Math.min(Math.ceil(idx), samples.length-1);
-                    var sampleLo = samples[idxLo].inches * PX_PER_IN;
-                    var sampleHi = samples[idxHi].inches * PX_PER_IN;
+                    var sampleLo = samples[idxLo].inches;
+                    var sampleHi = samples[idxHi].inches;
                     if(sampleLo === undefined && sampleHi === undefined) {
                         continue;
                     }
@@ -56,6 +56,7 @@ define([
                     if(sampleLo !== undefined && sampleHi !== undefined) {
                         sample = sampleLo * (1-Math.abs(idx - idxLo)) + sampleHi * (1-Math.abs(idx - idxHi));
                     }
+                    sample *= PX_PER_IN;
 
                     // TODO: PDF
                     var val = Math.abs(dist - sample) < 2 ? 1 : 0;
