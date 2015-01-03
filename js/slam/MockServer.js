@@ -39,12 +39,12 @@ define([
         self.drive = function(dist, cb) {
             actualPos[0] += Math.cos(actualDir) * dist;
             actualPos[1] += Math.sin(actualDir) * dist;
-            cb(dist);
+            setTimeout(function() {cb(dist)}, 100);
         };
 
         self.turn = function(radians, cb) {
             actualDir += radians;
-            cb(radians);
+            setTimeout(function() {cb(radians)}, 100);
         };
 
         self.drawSamples = function(ctx, scale, samples) {
