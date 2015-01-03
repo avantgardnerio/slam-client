@@ -91,7 +91,8 @@ define([
 
         var parseMap = function() {
             var imgData = ctx.getImageData(0, 0, background.width, background.height).data;
-            map = new Map(imgData, background.width, background.height);
+            map = new Map(background.width, background.height);
+            map.fromImage(imgData);
             robot = new Robot(map);
             self.invalidate();
             setInterval(tick, 100);

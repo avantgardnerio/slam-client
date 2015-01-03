@@ -1,7 +1,7 @@
 define([
 ], function Map(
 ) {
-    var Map = function Map(imgData, width, height) {
+    var Map = function Map(width, height, data) {
         var self = {};
 
         var WALL_PROBABILITY = 0.05; // From sample data
@@ -9,8 +9,8 @@ define([
         var probability = [];
 
         var ctor = function() {
-            if(imgData !== undefined) {
-                findWalls(imgData);
+            if(data !== undefined) {
+                probability = data.slice();
             } else {
                 initProb();
             }
@@ -24,7 +24,7 @@ define([
             }
         };
 
-        var findWalls = function(imgData) {
+        self.fromImage = function(imgData) {
             var count = 0;
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
