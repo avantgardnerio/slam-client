@@ -55,19 +55,23 @@ define([
         };
 
         self.draw = function(ctx) {
-            var imgData = ctx.createImageData(width, height);
+            var color = [0, 0, 255];
+            var imgData = ctx.getImageData(0, 0, width, height);
             var bitmap = imgData.data;
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
                     var p = probability[y * width + x];
                     var i = y * width * 4 + x * 4;
-                    bitmap[i + 0] = 0;
-                    bitmap[i + 1] = 0;
-                    bitmap[i + 2] = 255;
-                    bitmap[i + 3] = Math.round(p * 255);
+                    blend(bitmap, i, color, p);
                 }
             }
             ctx.putImageData(imgData, 0, 0);
+        };
+
+        var blend = function(ar, idx, color, percent) {
+            for(var i = 0; i < color.length; i++) {
+                ar[idx+i] = ar[idx+i] * (1-percent) + color[i] * percent;
+            }
         };
 
         ctor();

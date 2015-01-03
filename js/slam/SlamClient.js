@@ -34,7 +34,7 @@ define([
         };
 
         self.draw = function(ctx) {
-            console.log('hi');
+            map.draw(ctx);
         };
 
         // ----------------------------------------- private methods --------------------------------------------------
