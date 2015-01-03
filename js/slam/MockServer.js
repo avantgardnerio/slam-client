@@ -51,18 +51,18 @@ define([
                 }
                 samples.push({radians: mastRad, inches: dist});
             }
-            setTimeout(function() {cb(samples)}, 1000);
+            setTimeout(function() {cb(samples)}, 200);
         };
 
         self.drive = function(dist, cb) {
             pos[0] += Math.cos(dir) * dist;
             pos[1] += Math.sin(dir) * dist;
-            setTimeout(function() {cb(dist)}, 1000);
+            setTimeout(function() {cb(dist)}, 200);
         };
 
         self.turn = function(radians, cb) {
             dir += radians;
-            setTimeout(function() {cb(radians)}, 1000);
+            setTimeout(function() {cb(radians)}, 200);
         };
 
         // --------------------------------------- test methods -------------------------------------------------------

@@ -66,7 +66,7 @@ define([
                 for(var x = 0; x < width; x++) {
                     var p = probability[y * width + x];
                     var i = y * width * 4 + x * 4;
-                    blend(bitmap, i, color, p);
+                    blend(bitmap, i, color, p/4+1/4);
                 }
             }
             ctx.putImageData(imgData, 0, 0);

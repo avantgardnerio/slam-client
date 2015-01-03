@@ -63,11 +63,15 @@ define([
 
             } else if(history.length <= 1) {
                 self.turn(-Math.PI/2);
-            } else if(history.length <= 13) {
-                self.drive(12 * PX_PER_IN);
             } else if(history.length <= 14) {
+                self.drive(12 * PX_PER_IN);
+            } else if(history.length <= 15) {
                 self.turn(-Math.PI/2);
             } else if(history.length <= 30) {
+                self.drive(12 * PX_PER_IN);
+            } else if(history.length <= 31) {
+                self.turn(-Math.PI/2);
+            } else if(history.length <= 42) {
                 self.drive(12 * PX_PER_IN);
             }
         };
