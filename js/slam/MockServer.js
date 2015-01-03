@@ -17,8 +17,8 @@ define([
         var SAMPLE_COUNT = 2 * Math.PI * self.SENSOR_RANGE_MAX; // Take a sample every inch at worst
         var SAMPLE_RAD = 2 * Math.PI / SAMPLE_COUNT;
 
-        var actualPos = [800,700];
-        var actualDir = 0;
+        var pos = [800,700];
+        var dir = 0;
 
         var map;
 
@@ -34,12 +34,12 @@ define([
         self.scan = function(cb) {
             var samples = [];
             for(var mastRad = -Math.PI; mastRad <= Math.PI; mastRad += SAMPLE_RAD) {
-                var absRad = mastRad + actualDir;
+                var absRad = mastRad + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
                 var dist = undefined;
                 for(var d = self.SENSOR_RANGE_MIN; d < self.SENSOR_RANGE_MAX; d += 0.5) {
-                    var x = Math.floor(actualPos[0] + vec[0] * d * PX_PER_IN);
-                    var y = Math.floor(actualPos[1] + vec[1] * d * PX_PER_IN);
+                    var x = Math.floor(pos[0] + vec[0] * d * PX_PER_IN);
+                    var y = Math.floor(pos[1] + vec[1] * d * PX_PER_IN);
                     if(map.getPixel(x, y)
                         || map.getPixel(x+1, y)
                         || map.getPixel(x, y+1)
@@ -55,13 +55,13 @@ define([
         };
 
         self.drive = function(dist, cb) {
-            actualPos[0] += Math.cos(actualDir) * dist;
-            actualPos[1] += Math.sin(actualDir) * dist;
+            pos[0] += Math.cos(dir) * dist;
+            pos[1] += Math.sin(dir) * dist;
             setTimeout(function() {cb(dist)}, 1000);
         };
 
         self.turn = function(radians, cb) {
-            actualDir += radians;
+            dir += radians;
             setTimeout(function() {cb(radians)}, 1000);
         };
 
@@ -75,8 +75,8 @@ define([
                 if(sample.inches === undefined) {
                     continue;
                 }
-                var x = actualPos[0] + Math.cos(actualDir + sample.radians) * sample.inches * PX_PER_IN;
-                var y = actualPos[1] + Math.sin(actualDir + sample.radians) * sample.inches * PX_PER_IN;
+                var x = pos[0] + Math.cos(dir + sample.radians) * sample.inches * PX_PER_IN;
+                var y = pos[1] + Math.sin(dir + sample.radians) * sample.inches * PX_PER_IN;
                 ctx.fillRect(Math.round(x), Math.round(y), 2, 2);
             }
 
@@ -87,8 +87,8 @@ define([
             //map.draw(ctx);
 
             var oldStroke = ctx.strokeStyle;
-            ctx.translate(actualPos[0], actualPos[1]);
-            ctx.rotate(actualDir);
+            ctx.translate(pos[0], pos[1]);
+            ctx.rotate(dir);
 
             ctx.strokeStyle = '#FF0000';
             ctx.strokeRect(-self.SIZE[0]/2*PX_PER_IN, -self.SIZE[1]/2*PX_PER_IN, self.SIZE[0]*PX_PER_IN, self.SIZE[1]*PX_PER_IN);
@@ -97,8 +97,8 @@ define([
             ctx.lineTo(self.SIZE[1]/2*PX_PER_IN, 0);
             ctx.stroke();
 
-            ctx.rotate(-actualDir);
-            ctx.translate(-actualPos[0], -actualPos[1]);
+            ctx.rotate(-dir);
+            ctx.translate(-pos[0], -pos[1]);
             ctx.strokeStyle = oldStroke;
         };
 

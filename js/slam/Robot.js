@@ -43,7 +43,7 @@ define([
                     }
 
                     // Find the closest samples and interpolate
-                    var ang = norm(dir - Math.atan2(y, x));
+                    var ang = norm(Math.atan2(y, x) - dir);
                     var normAng = (ang + Math.PI) / (Math.PI*2);
                     var idx = normAng * (samples.length-1);
                     var idxLo = Math.max(Math.floor(idx), 0);
@@ -60,6 +60,9 @@ define([
                     sample *= PX_PER_IN;
 
                     var observation = pdf(dist, sample);
+                    if(observation === undefined) {
+                        continue;
+                    }
                     var prior = map.getPixel(pos[0]+x, pos[1]+y);
                     var posterior = conditionalProb(observation, prior, WALL_PROBABILITY);
                     map.setPixel(pos[0]+x, pos[1]+y, posterior);
@@ -81,6 +84,9 @@ define([
 
         // TODO: Better PDF
         var pdf = function(dist, sample) {
+            if(dist > sample + 10) {
+                return undefined;
+            }
             var val = Math.abs(dist - sample);
             val = Math.min(val, 10);
             val = 10 - val;
