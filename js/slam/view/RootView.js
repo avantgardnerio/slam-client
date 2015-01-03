@@ -12,14 +12,16 @@ define([
 
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
-        var PX_PER_IN = PX_PER_FT / IN_PER_FT;
+        var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
 
         var cnvMain;
         var ctx;
         var background;
-        var robot = new Robot();
+        var robot;
         var map;
         var timer;
+
+        var samples; // TODO: Collect samples elsewhere
 
         var init = function() {
             cnvMain = $('<canvas/>')[0];
@@ -70,17 +72,26 @@ define([
                 //map.draw(ctx, PX_PER_IN);
                 robot.draw(ctx, PX_PER_IN);
             }
+
+            // Samples
+            if(samples !== undefined) {
+                robot.drawSamples(ctx, PX_PER_IN, samples);
+            }
         };
 
         var tick = function() {
-            robot.turn(1, self.invalidate);
-            robot.drive(36 * PX_PER_IN, self.invalidate);
+
+            robot.scan(function(s) {samples = s;}, PX_PER_IN);
+
+            //robot.turn(1, self.invalidate);
+            //robot.drive(36 * PX_PER_IN, self.invalidate);
             self.invalidate();
         };
 
         var parseMap = function() {
             var imgData = ctx.getImageData(0, 0, background.width, background.height).data;
             map = new Map(imgData, background.width, background.height);
+            robot = new Robot(map);
             self.invalidate();
             setInterval(tick, 100);
         };

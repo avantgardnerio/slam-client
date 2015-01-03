@@ -19,13 +19,21 @@ define([
             }
         };
 
+        self.testObstruction = function(x, y) {
+            x = Math.round(x);
+            y = Math.round(y);
+            if(x < 0 || y < 0 || x > width || y > height) {
+                return true;
+            }
+            return bitmap[y * width + x];
+        };
+
         self.draw = function(ctx) {
             var oldFill = ctx.fillStyle;
             ctx.fillStyle = '#0000FF';
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
-                    var hasWall = bitmap[y * width + x];
-                    if(hasWall) {
+                    if(self.testObstruction(x, y)) {
                         ctx.fillRect(x, y, 1, 1);
                     }
                 }
