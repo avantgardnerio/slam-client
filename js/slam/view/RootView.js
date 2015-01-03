@@ -61,6 +61,7 @@ define([
             ctx.drawImage(background, 0, 0, background.width, background.height);
 
             // Have the server draw itself (no-op on the real server, because it doesn't know where it is!)
+            client.draw(ctx, PX_PER_IN);
             server.draw(ctx, PX_PER_IN);
         };
 
@@ -74,6 +75,7 @@ define([
             var imgData = ctx.getImageData(0, 0, background.width, background.height);
             server = new SlamServer(imgData);
             client = new SlamClient(server, background.width, background.height);
+            client.invalidate.add(self.invalidate);
 
             self.invalidate();
             client.start();
