@@ -6,6 +6,10 @@ define([
     var MockServer = function MockServer() {
         var self = {};
 
+        var PX_PER_FT = 40; // TODO: Un hard code
+        var IN_PER_FT = 12;
+        var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
+
         self.SIZE = [6, 6];      // Inches
         self.SENSOR_RANGE_MIN = 6;  // Inches
         self.SENSOR_RANGE_MAX = 36;  // Inches
@@ -27,15 +31,15 @@ define([
             map.fromImage(imgData.data);
         };
 
-        self.scan = function(cb, scale) {
+        self.scan = function(cb) {
             var samples = [];
             for(var mastRad = -Math.PI; mastRad <= Math.PI; mastRad += SAMPLE_RAD) {
                 var absRad = mastRad + actualDir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
                 var dist = undefined;
                 for(var d = self.SENSOR_RANGE_MIN; d < self.SENSOR_RANGE_MAX; d += 0.5) {
-                    var x = Math.floor(actualPos[0] + vec[0] * d * scale);
-                    var y = Math.floor(actualPos[1] + vec[1] * d * scale);
+                    var x = Math.floor(actualPos[0] + vec[0] * d * PX_PER_IN);
+                    var y = Math.floor(actualPos[1] + vec[1] * d * PX_PER_IN);
                     if(map.getPixel(x, y)
                         || map.getPixel(x+1, y)
                         || map.getPixel(x, y+1)
@@ -62,7 +66,7 @@ define([
         };
 
         // --------------------------------------- test methods -------------------------------------------------------
-        self.drawSamples = function(ctx, scale, samples) {
+        self.drawSamples = function(ctx, samples) {
             var oldFill = ctx.fillStyle;
 
             ctx.fillStyle = '#FF4444';
@@ -71,24 +75,24 @@ define([
                 if(sample.inches === undefined) {
                     continue;
                 }
-                var x = actualPos[0] + Math.cos(actualDir + sample.radians) * sample.inches * scale;
-                var y = actualPos[1] + Math.sin(actualDir + sample.radians) * sample.inches * scale;
+                var x = actualPos[0] + Math.cos(actualDir + sample.radians) * sample.inches * PX_PER_IN;
+                var y = actualPos[1] + Math.sin(actualDir + sample.radians) * sample.inches * PX_PER_IN;
                 ctx.fillRect(Math.round(x), Math.round(y), 2, 2);
             }
 
             ctx.fillStyle = oldFill;
         };
 
-        self.draw = function(ctx, scale) {
+        self.draw = function(ctx) {
             var oldStroke = ctx.strokeStyle;
             ctx.translate(actualPos[0], actualPos[1]);
             ctx.rotate(actualDir);
 
             ctx.strokeStyle = '#FF0000';
-            ctx.strokeRect(-self.SIZE[0]/2*scale, -self.SIZE[1]/2*scale, self.SIZE[0]*scale, self.SIZE[1]*scale);
+            ctx.strokeRect(-self.SIZE[0]/2*PX_PER_IN, -self.SIZE[1]/2*PX_PER_IN, self.SIZE[0]*PX_PER_IN, self.SIZE[1]*PX_PER_IN);
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(self.SIZE[1]/2*scale, 0);
+            ctx.lineTo(self.SIZE[1]/2*PX_PER_IN, 0);
             ctx.stroke();
 
             ctx.rotate(-actualDir);

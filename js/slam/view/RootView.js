@@ -58,14 +58,14 @@ define([
             ctx.drawImage(background, 0, 0, background.width, background.height);
 
             // Have the server draw itself (no-op on the real server, because it doesn't know where it is!)
-            client.draw(ctx, PX_PER_IN);
-            server.draw(ctx, PX_PER_IN);
+            client.draw(ctx);
+            server.draw(ctx);
         };
 
         // ---------------------------------------- helper methods ----------------------------------------------------
         var onImgLoad = function() {
             ctx.drawImage(background, 0, 0, background.width, background.height);
-            setTimeout(parseMap, 100);
+            setTimeout(parseMap, 1000); // TODO: Fix this race condition
         };
 
         var parseMap = function() {

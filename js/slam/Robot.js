@@ -42,7 +42,6 @@ define([
                     }
 
                     // Find the closest samples and interpolate
-                    /*
                     var ang = Math.atan2(x, y);
                     var normAng = (ang + Math.PI) / (Math.PI*2);
                     var idx = normAng * (samples.length-1);
@@ -60,8 +59,6 @@ define([
 
                     // TODO: PDF
                     var val = Math.max(Math.min(Math.abs(dist - sample), 1), 0);
-                    */
-                    val = 1;
                     map.setPixel(pos[0]+x, pos[1]+y, val);
                 }
             }
