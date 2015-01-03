@@ -1,19 +1,25 @@
 define([
-    'jquery'
+    'jquery',
+    'slam/MockRobot',
+    'slam/Map'
 ], function(
-    $
+    $,
+    Robot,
+    Map
 ) {
     var RootView = function() {
         var self = {};
 
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
-        var WALL_THRESHOLD = 100;
+        var PX_PER_IN = PX_PER_FT / IN_PER_FT;
 
         var cnvMain;
         var ctx;
         var background;
-        var bitmap;
+        var robot = new Robot();
+        var map;
+        var timer;
 
         var init = function() {
             cnvMain = $('<canvas/>')[0];
@@ -47,34 +53,29 @@ define([
         };
 
         var draw = function() {
-            if(background.width > 0 && background.height > 0) {
-                ctx.drawImage(background, 0, 0, background.width, background.height);
-                if(bitmap === undefined) {
-                    setTimeout(parseMap, 1);
+            if(background.width <= 0 || background.height <= 0) {
+                console.log('No image yet!');
+                return;
+            }
+
+            // Image
+            ctx.drawImage(background, 0, 0, background.width, background.height);
+
+            // Map
+            if(map === undefined) {
+                if(timer === undefined) {
+                    timer = setTimeout(parseMap, 1);
                 }
+            } else {
+                map.draw(ctx, PX_PER_IN);
+                robot.draw(ctx, PX_PER_IN);
             }
         };
 
         var parseMap = function() {
-            bitmap = [];
             var imgData = ctx.getImageData(0, 0, background.width, background.height).data;
-            for(var y = 0; y < background.height; y++) {
-                for(var x = 0; x < background.width; x++) {
-                    var i = y * background.width * 4 + x * 4;
-                    var hasWall = imgData[i + 0] < WALL_THRESHOLD && imgData[i + 1] < WALL_THRESHOLD && imgData[i + 2] < WALL_THRESHOLD;
-                    bitmap[y * background.width + x] = hasWall;
-                }
-            }
-
-            ctx.fillStyle = '#0000FF';
-            for(var y = 0; y < background.height; y++) {
-                for(var x = 0; x < background.width; x++) {
-                    var hasWall = bitmap[y * background.width + x];
-                    if(hasWall) {
-                        ctx.fillRect(x, y, 1, 1);
-                    }
-                }
-            }
+            map = new Map(imgData, background.width, background.height);
+            self.invalidate();
         };
 
         init();
