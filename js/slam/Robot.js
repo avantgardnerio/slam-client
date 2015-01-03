@@ -47,8 +47,8 @@ define([
                     var idx = normAng * (samples.length-1);
                     var idxLo = Math.max(Math.floor(idx), 0);
                     var idxHi = Math.min(Math.ceil(idx), samples.length-1);
-                    var sampleLo = samples[idxLo].inches;
-                    var sampleHi = samples[idxHi].inches;
+                    var sampleLo = samples[idxLo].inches * PX_PER_IN;
+                    var sampleHi = samples[idxHi].inches * PX_PER_IN;
                     if(sampleLo === undefined && sampleHi === undefined) {
                         continue;
                     }
@@ -58,7 +58,7 @@ define([
                     }
 
                     // TODO: PDF
-                    var val = Math.max(Math.min(Math.abs(dist - sample), 1), 0);
+                    var val = Math.abs(dist - sample) < 2 ? 1 : 0;
                     map.setPixel(pos[0]+x, pos[1]+y, val);
                 }
             }

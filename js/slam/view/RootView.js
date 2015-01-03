@@ -65,7 +65,7 @@ define([
         // ---------------------------------------- helper methods ----------------------------------------------------
         var onImgLoad = function() {
             ctx.drawImage(background, 0, 0, background.width, background.height);
-            setTimeout(parseMap, 1000); // TODO: Fix this race condition
+            setTimeout(parseMap, 100); // TODO: Fix this race condition
         };
 
         var parseMap = function() {

@@ -84,6 +84,8 @@ define([
         };
 
         self.draw = function(ctx) {
+            //map.draw(ctx);
+
             var oldStroke = ctx.strokeStyle;
             ctx.translate(actualPos[0], actualPos[1]);
             ctx.rotate(actualDir);
