@@ -1,6 +1,6 @@
 define([
     'jquery',
-    'slam/MockRobot',
+    'slam/MockServer',
     'slam/Map'
 ], function(
     $,
