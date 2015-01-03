@@ -81,10 +81,11 @@ define([
 
         var tick = function() {
 
+            robot.turn(0.5, self.invalidate);
+            robot.drive(12 * PX_PER_IN, self.invalidate);
+
             robot.scan(function(s) {samples = s;}, PX_PER_IN);
 
-            //robot.turn(1, self.invalidate);
-            //robot.drive(36 * PX_PER_IN, self.invalidate);
             self.invalidate();
         };
 
