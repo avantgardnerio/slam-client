@@ -9,6 +9,7 @@ define([
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
         var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
+        var WALL_PROBABILITY = 0.05; // From sample data
 
         var pos = [800,700]; // TODO: Hide this knowledge from the robot
         var dir = 0;
@@ -58,11 +59,26 @@ define([
                     }
                     sample *= PX_PER_IN;
 
-                    // TODO: PDF
-                    var val = Math.abs(dist - sample) < 2 ? 1 : 0;
-                    map.setPixel(pos[0]+x, pos[1]+y, val);
+                    var observation = pdf(dist, sample);
+                    var prior = map.getPixel(pos[0]+x, pos[1]+y);
+                    var posterior = conditionalProb(observation, prior, WALL_PROBABILITY);
+                    map.setPixel(pos[0]+x, pos[1]+y, posterior);
                 }
             }
+        };
+
+        var conditionalProb = function(observation, prior, general) {
+            var posterior = observation * prior / general;
+            return posterior;
+        };
+
+        // TODO: Better PDF
+        var pdf = function(dist, sample) {
+            var val = Math.abs(dist - sample);
+            val = Math.min(val, 20);
+            val = 20 - val;
+            val /= 20;
+            return val;
         };
 
         self.draw = function (ctx) {
