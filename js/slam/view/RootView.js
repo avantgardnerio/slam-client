@@ -1,13 +1,11 @@
 define([
     'jquery',
     'slam/MockServer',
-    'slam/SlamClient',
-    'slam/Map'
+    'slam/SlamClient'
 ], function(
     $,
-    SlamServer,
-    SlamClient,
-    Map
+    server,
+    SlamClient
 ) {
     var RootView = function() {
         var self = {};
@@ -20,7 +18,6 @@ define([
         var ctx;
         var background;
 
-        var server;
         var client;
 
         var init = function() {
@@ -53,7 +50,7 @@ define([
 
         // -------------------------------------- private methods -----------------------------------------------------
         var draw = function() {
-            if(server === undefined) {
+            if(client === undefined) {
                 return;
             }
 
@@ -73,8 +70,8 @@ define([
 
         var parseMap = function() {
             var imgData = ctx.getImageData(0, 0, background.width, background.height);
-            server = new SlamServer(imgData);
-            client = new SlamClient(server, background.width, background.height);
+            server.setMap(imgData);
+            client = new SlamClient(background.width, background.height);
             client.invalidate.add(self.invalidate);
 
             self.invalidate();

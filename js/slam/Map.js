@@ -45,13 +45,17 @@ define([
             console.log('wallProbability=' + wallProbability);
         };
 
-        self.testObstruction = function(x, y) {
+        self.getPixel = function(x, y) {
             x = Math.round(x);
             y = Math.round(y);
             if(x < 0 || y < 0 || x > width || y > height) {
                 return true;
             }
             return probability[y * width + x];
+        };
+
+        self.setPixel = function(x, y, val) {
+            probability[y * width + x] = val;
         };
 
         self.draw = function(ctx) {

@@ -3,13 +3,14 @@ define([
 ], function(
     Map
 ) {
-    var MockRobot = function MockRobot(imgData) {
+    var MockServer = function MockServer() {
         var self = {};
 
-        var SIZE = [6, 6];      // Inches
-        var SENSOR_RANGE_MIN = 6;  // Inches
-        var SENSOR_RANGE_MAX = 36;  // Inches
-        var SAMPLE_COUNT = 2 * Math.PI * SENSOR_RANGE_MAX; // Take a sample every inch at worst
+        self.SIZE = [6, 6];      // Inches
+        self.SENSOR_RANGE_MIN = 6;  // Inches
+        self.SENSOR_RANGE_MAX = 36;  // Inches
+
+        var SAMPLE_COUNT = 2 * Math.PI * self.SENSOR_RANGE_MAX; // Take a sample every inch at worst
         var SAMPLE_RAD = 2 * Math.PI / SAMPLE_COUNT;
 
         var actualPos = [800,700];
@@ -18,24 +19,27 @@ define([
         var map;
 
         var ctor = function() {
+        };
+
+        // ------------------------------------- public methods -------------------------------------------------------
+        self.setMap = function(imgData) {
             map = new Map(imgData.width, imgData.height);
             map.fromImage(imgData.data);
         };
 
-        // ------------------------------------- public methods -------------------------------------------------------
         self.scan = function(cb, scale) {
             var samples = [];
             for(var mastRad = -Math.PI; mastRad <= Math.PI; mastRad += SAMPLE_RAD) {
                 var absRad = mastRad + actualDir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
                 var dist = undefined;
-                for(var d = SENSOR_RANGE_MIN; d < SENSOR_RANGE_MAX; d += 0.5) {
+                for(var d = self.SENSOR_RANGE_MIN; d < self.SENSOR_RANGE_MAX; d += 0.5) {
                     var x = Math.floor(actualPos[0] + vec[0] * d * scale);
                     var y = Math.floor(actualPos[1] + vec[1] * d * scale);
-                    if(map.testObstruction(x, y)
-                        || map.testObstruction(x+1, y)
-                        || map.testObstruction(x, y+1)
-                        || map.testObstruction(x+1, y+1)
+                    if(map.getPixel(x, y)
+                        || map.getPixel(x+1, y)
+                        || map.getPixel(x, y+1)
+                        || map.getPixel(x+1, y+1)
                     ) {
                         dist = d;
                         break;
@@ -81,10 +85,10 @@ define([
             ctx.rotate(actualDir);
 
             ctx.strokeStyle = '#FF0000';
-            ctx.strokeRect(-SIZE[0]/2*scale, -SIZE[1]/2*scale, SIZE[0]*scale, SIZE[1]*scale);
+            ctx.strokeRect(-self.SIZE[0]/2*scale, -self.SIZE[1]/2*scale, self.SIZE[0]*scale, self.SIZE[1]*scale);
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(SIZE[1]/2*scale, 0);
+            ctx.lineTo(self.SIZE[1]/2*scale, 0);
             ctx.stroke();
 
             ctx.rotate(-actualDir);
@@ -96,5 +100,6 @@ define([
         return self;
     };
 
-    return MockRobot;
+    var instance = new MockServer();
+    return instance;
 });

@@ -1,13 +1,11 @@
 define([
     'signals',
     'slam/Robot',
-    'slam/Map'
-], function SlamClient(
-    signals,
-    Robot,
-    Map
-) {
-    var SlamClient = function SlamClient(server, width, height) {
+    'slam/MockServer'
+], function SlamClient(signals,
+                       Robot,
+                       server) {
+    var SlamClient = function SlamClient(width, height) {
         var self = {};
 
         // --------------------------------------------- constants ----------------------------------------------------
@@ -19,27 +17,29 @@ define([
         // ------------------------------------------- private vars ---------------------------------------------------
         var robots = [];
         var history = [];
-        var map = new Map(width, height);
 
         // ------------------------------------------ constructor -----------------------------------------------------
-        var ctor = function() {
-            for(var i = 0; i < ROBOT_COUNT; i++) {
-                robots.push(new Robot());
+        var ctor = function () {
+            for (var i = 0; i < ROBOT_COUNT; i++) {
+                robots.push(new Robot(width, height));
             }
         };
 
         // ------------------------------------------ public methods --------------------------------------------------
-        self.start = function() {
+        self.start = function () {
             server.scan(onScanComplete);
         };
 
-        self.draw = function(ctx) {
-            map.draw(ctx);
+        self.draw = function (ctx) {
+            robots[0].draw(ctx);
         };
 
         // ----------------------------------------- private methods --------------------------------------------------
-        var onScanComplete = function(samples) {
+        var onScanComplete = function (samples) {
             history.push({action: 'scan', data: samples});
+            robots.forEach(function (robot) {
+                robot.applySamples(samples);
+            });
             self.invalidate.dispatch();
         };
 
