@@ -19,11 +19,14 @@ define([
                 var absRad = mastRad + actualDir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
                 var dist = undefined;
-                for(var d = SENSOR_RANGE_MIN; d < SENSOR_RANGE_MAX; d++) {
-                    // TODO: Sample surrounding 4 px
-                    var x = actualPos[0] + vec[0] * d * scale;
-                    var y = actualPos[1] + vec[1] * d * scale;
-                    if(map.testObstruction(x, y) === true) {
+                for(var d = SENSOR_RANGE_MIN; d < SENSOR_RANGE_MAX; d += 0.5) {
+                    var x = Math.floor(actualPos[0] + vec[0] * d * scale);
+                    var y = Math.floor(actualPos[1] + vec[1] * d * scale);
+                    if(map.testObstruction(x, y)
+                        || map.testObstruction(x+1, y)
+                        || map.testObstruction(x, y+1)
+                        || map.testObstruction(x+1, y+1)
+                    ) {
                         dist = d;
                         break;
                     }
