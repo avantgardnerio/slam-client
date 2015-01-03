@@ -8,6 +8,7 @@ define([
 
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
+        var WALL_THRESHOLD = 100;
 
         var cnvMain;
         var ctx;
@@ -60,7 +61,7 @@ define([
             for(var y = 0; y < background.height; y++) {
                 for(var x = 0; x < background.width; x++) {
                     var i = y * background.width * 4 + x * 4;
-                    var hasWall = imgData[i + 0] < 50 && imgData[i + 1] < 50 && imgData[i + 2] < 50;
+                    var hasWall = imgData[i + 0] < WALL_THRESHOLD && imgData[i + 1] < WALL_THRESHOLD && imgData[i + 2] < WALL_THRESHOLD;
                     bitmap[y * background.width + x] = hasWall;
                 }
             }
