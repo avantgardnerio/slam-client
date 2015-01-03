@@ -4,10 +4,28 @@ define([
     var Map = function Map(imgData, width, height) {
         var self = {};
 
+        var WALL_PROBABILITY = 0.05; // From sample data
         var WALL_THRESHOLD = 100;
         var probability = [];
 
         var ctor = function() {
+            if(imgData !== undefined) {
+                findWalls(imgData);
+            } else {
+                initProb();
+            }
+        };
+
+        var initProb = function() {
+            for(var y = 0; y < height; y++) {
+                for(var x = 0; x < width; x++) {
+                    probability[y * width + x] = WALL_PROBABILITY;
+                }
+            }
+        };
+
+        var findWalls = function(imgData) {
+            var count = 0;
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
                     var i = y * width * 4 + x * 4;
@@ -18,8 +36,13 @@ define([
                         && imgData[i + 2] < WALL_THRESHOLD;
                     var p = hasWall ? 1 : 0;
                     probability[y * width + x] = p;
+                    if(p === 1) {
+                        count++;
+                    }
                 }
             }
+            var wallProbability = count / (width * height);
+            console.log('wallProbability=' + wallProbability);
         };
 
         self.testObstruction = function(x, y) {
