@@ -32,9 +32,39 @@ define([
 
         self.draw = function (ctx) {
             robots[0].draw(ctx);
+
+            // TODO: Un hard code
+            if(history.length === 1) {
+                self.turn(-Math.PI/2);
+            }
+            if(history.length == 2) {
+                self.drive(12);
+            }
+        };
+
+        self.turn = function(radians) {
+            server.turn(radians, onTurnComplete);
+        };
+
+        self.drive = function(inches) {
+            server.drive(inches, onDriveComplete);
         };
 
         // ----------------------------------------- private methods --------------------------------------------------
+        var onTurnComplete = function(measuredRads) {
+            robots.forEach(function (robot) {
+                robot.turn(measuredRads);
+            });
+            server.scan(onScanComplete);
+        };
+
+        var onDriveComplete = function(measuredDist) {
+            robots.forEach(function (robot) {
+                robot.drive(measuredDist);
+            });
+            server.scan(onScanComplete);
+        };
+
         var onScanComplete = function (samples) {
             history.push({action: 'scan', data: samples});
             robots.forEach(function (robot) {

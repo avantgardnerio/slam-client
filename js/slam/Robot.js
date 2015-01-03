@@ -43,7 +43,7 @@ define([
                     }
 
                     // Find the closest samples and interpolate
-                    var ang = Math.atan2(y, x);
+                    var ang = norm(dir - Math.atan2(y, x));
                     var normAng = (ang + Math.PI) / (Math.PI*2);
                     var idx = normAng * (samples.length-1);
                     var idxLo = Math.max(Math.floor(idx), 0);
@@ -67,6 +67,13 @@ define([
             }
         };
 
+        // TODO: Linear time impl
+        var norm = function(ang) {
+            while(ang < -Math.PI) ang += Math.PI*2;
+            while(ang > Math.PI) ang -= Math.PI*2;
+            return ang;
+        };
+
         var conditionalProb = function(observation, prior, general) {
             var posterior = observation * prior / general;
             return posterior;
@@ -75,8 +82,8 @@ define([
         // TODO: Better PDF
         var pdf = function(dist, sample) {
             var val = Math.abs(dist - sample);
-            val = Math.min(val, 20);
-            val = 20 - val;
+            val = Math.min(val, 10);
+            val = 10 - val;
             val /= 20;
             return val;
         };
