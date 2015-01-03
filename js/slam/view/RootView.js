@@ -67,15 +67,22 @@ define([
                     timer = setTimeout(parseMap, 1);
                 }
             } else {
-                map.draw(ctx, PX_PER_IN);
+                //map.draw(ctx, PX_PER_IN);
                 robot.draw(ctx, PX_PER_IN);
             }
+        };
+
+        var tick = function() {
+            robot.turn(1, self.invalidate);
+            robot.drive(36 * PX_PER_IN, self.invalidate);
+            self.invalidate();
         };
 
         var parseMap = function() {
             var imgData = ctx.getImageData(0, 0, background.width, background.height).data;
             map = new Map(imgData, background.width, background.height);
             self.invalidate();
+            setInterval(tick, 100);
         };
 
         init();
