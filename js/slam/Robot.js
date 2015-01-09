@@ -6,6 +6,10 @@ define([
     var Robot = function Robot(width, height) {
         var self = {};
 
+        self.SENSOR_RANGE_MIN = 6;  // Inches
+        self.SENSOR_RANGE_MAX = 36;  // Inches
+        var SAMPLE_COUNT = 2 * Math.PI * self.SENSOR_RANGE_MAX; // Take a sample every inch at worst
+        var SAMPLE_RAD = 2 * Math.PI / SAMPLE_COUNT;
         var SENSOR_STDDEV = 3;
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
@@ -71,6 +75,51 @@ define([
                     map.setPixel(pos[0]+x, pos[1]+y, posterior);
                 }
             }
+        };
+
+        self.scan = function(cb) {
+            var samples = [];
+            for(var mastRad = -Math.PI; mastRad <= Math.PI; mastRad += SAMPLE_RAD) {
+                var absRad = mastRad + dir;
+                var vec = [Math.cos(absRad), Math.sin(absRad)];
+                var dist = undefined;
+                for(var d = self.SENSOR_RANGE_MIN; d < self.SENSOR_RANGE_MAX; d += 0.5) {
+                    var x = pos[0] + vec[0] * d * PX_PER_IN;
+                    var y = pos[1] + vec[1] * d * PX_PER_IN;
+                    var probability = oversample(x, y);
+                    if(Math.random() < probability) {
+                        dist = d;
+                        break;
+                    }
+                }
+                samples.push({radians: mastRad, inches: dist});
+            }
+            cb(samples);
+        };
+
+        self.fitness = function(predicted, actual) {
+            var count = Math.min(predicted.length, actual.length);
+            var total = 0;
+            for(var i = 0; i < count; i++) {
+                var pred = predicted[i].inches ? predicted[i].inches : self.SENSOR_RANGE_MAX;
+                var act = actual[i].inches ?  actual[i].inches : self.SENSOR_RANGE_MAX;
+                var diff = Math.abs(pred - act) / self.SENSOR_RANGE_MAX;
+                total += diff;
+            }
+            total /= count;
+            return total;
+        };
+
+        var oversample = function(x, y) {
+            x = Math.floor(x);
+            y = Math.floor(y);
+            var total = 0;
+            total += map.getPixel(x, y);
+            total += map.getPixel(x+1, y);
+            total += map.getPixel(x, y+1);
+            total += map.getPixel(x+1, y+1);
+            total /= 4;
+            return total;
         };
 
         // TODO: Linear time impl

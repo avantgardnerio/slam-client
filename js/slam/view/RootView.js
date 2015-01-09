@@ -65,10 +65,6 @@ define([
         // ---------------------------------------- helper methods ----------------------------------------------------
         var onImgLoad = function() {
             ctx.drawImage(background, 0, 0, background.width, background.height);
-            parseMap();
-        };
-
-        var parseMap = function() {
             var imgData = ctx.getImageData(0, 0, background.width, background.height);
             server.setMap(imgData);
             client = new SlamClient(background.width, background.height);

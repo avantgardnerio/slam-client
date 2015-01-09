@@ -95,8 +95,12 @@ define([
         var onScanComplete = function (samples) {
             console.log('' + history.length + ' got samples');
             history.push({action: 'scan', data: samples});
-            robots.forEach(function (robot) {
-                robot.applySamples(samples);
+            robots.forEach(function(robot, i) {
+                robot.scan(function(predicted) {
+                    var fitness = robot.fitness(predicted, samples);
+                    console.log('Robot' + i + ' fitness=' + fitness);
+                    robot.applySamples(samples);
+                });
             });
             doing = false;
             self.invalidate.dispatch();
