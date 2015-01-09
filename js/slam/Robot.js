@@ -6,6 +6,7 @@ define([
     var Robot = function Robot(width, height) {
         var self = {};
 
+        var SENSOR_STDDEV = 3;
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
         var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
@@ -84,15 +85,20 @@ define([
             return posterior;
         };
 
-        // TODO: Better PDF
+        var normDist = function(x, mean, stddev) {
+            var res = 1 / (stddev * Math.sqrt(2 * Math.PI)) * Math.pow(Math.E, -sq(x - mean) / (2 * sq(stddev)));
+            return res;
+        };
+
+        var sq = function(val) {
+            return val * val;
+        };
+
         var pdf = function(dist, sample) {
-            if(dist > sample + 10) {
-                return undefined;
+            var val = normDist(dist, sample, SENSOR_STDDEV);
+            if(dist > sample) {
+                val = Math.max(val, WALL_PROBABILITY);
             }
-            var val = Math.abs(dist - sample);
-            val = Math.min(val, 10);
-            val = 10 - val;
-            val /= 20;
             return val;
         };
 

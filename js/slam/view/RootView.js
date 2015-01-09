@@ -27,9 +27,9 @@ define([
             ctx = cnvMain.getContext("2d");
 
             // Load the background image
-            background = $('<img/>')[0];
-            $(background).ready(onImgLoad);
-            $(background).attr('src', 'img/floor_plan_example.png'); // TODO: Un hard code
+            background = new Image();
+            background.onload = onImgLoad;
+            background.src = 'img/floor_plan_example.png'; // TODO: Un hard code
 
             // Handle window resizing
             $(window).resize(onResize);
@@ -65,7 +65,7 @@ define([
         // ---------------------------------------- helper methods ----------------------------------------------------
         var onImgLoad = function() {
             ctx.drawImage(background, 0, 0, background.width, background.height);
-            setTimeout(parseMap, 100); // TODO: Fix this race condition
+            parseMap();
         };
 
         var parseMap = function() {
