@@ -1,14 +1,18 @@
 define([
     'jquery',
+    'text!template/RootView.html',
+    'slam/view/KoView',
     'slam/MockServer',
     'slam/SlamClient'
 ], function(
     $,
+    template,
+    KoView,
     server,
     SlamClient
 ) {
     var RootView = function() {
-        var self = {};
+        var self = new KoView();
 
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
@@ -78,6 +82,11 @@ define([
             $(cnvMain).attr('width', $(window).innerWidth());
             $(cnvMain).attr('height', $(window).innerHeight());
             self.invalidate();
+        };
+
+        // ----------------------------------------- overrides --------------------------------------------------------
+        self._getTemplate = function() {
+            return template;
         };
 
         init();

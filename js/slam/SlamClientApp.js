@@ -11,7 +11,7 @@ define([
         var view = new RootView();
 
         self.start = function() {
-            $(el).append(view.getElement());
+            $(el).html(view.getElement());
             view.onLoad();
         };
 
