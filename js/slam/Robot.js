@@ -3,13 +3,26 @@ define([
     'slam/MockServer'
 ], function Robot(Map,
                   server) {
+
+    var PX_PER_FT = 40; // TODO: Un hard code
+    var IN_PER_FT = 12;
+    var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
+    var ATAN_CACHE = [];
+    var YMIN = Math.floor(-server.SENSOR_RANGE_MAX * PX_PER_IN);
+    var XMIN = Math.floor(-server.SENSOR_RANGE_MAX * PX_PER_IN);
+    var YMAX = Math.ceil(server.SENSOR_RANGE_MAX * PX_PER_IN);
+    var XMAX = Math.ceil(server.SENSOR_RANGE_MAX * PX_PER_IN);
+    var COL_SIZE = XMAX - XMIN;
+    for(var y = YMIN; y < YMAX; y++) {
+        for(var x = XMIN; x < XMAX; x++) {
+            ATAN_CACHE[y * COL_SIZE + x] = Math.atan2(y, x);
+        }
+    }
+
     var Robot = function Robot(width, height) {
         var self = {};
 
         var SENSOR_STDDEV = 3;
-        var PX_PER_FT = 40; // TODO: Un hard code
-        var IN_PER_FT = 12;
-        var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
         var WALL_PROBABILITY = 0.05; // From sample data
 
         var pos = [800,700]; // TODO: Hide this knowledge from the robot
@@ -37,8 +50,9 @@ define([
 
             // Scan a box that overlaps with the range of the sensor
             var count = 0;
-            for(var y = -server.SENSOR_RANGE_MAX * PX_PER_IN; y < server.SENSOR_RANGE_MAX * PX_PER_IN; y++) {
-                for(var x = -server.SENSOR_RANGE_MAX * PX_PER_IN; x < server.SENSOR_RANGE_MAX * PX_PER_IN; x++) {
+            for(var y = YMIN; y < YMAX; y++) {
+                for(var x = XMIN; x < XMAX; x++) {
+
 
                     // Exclude anything out of range
                     var dist = Math.sqrt(x*x+y*y);
@@ -47,7 +61,8 @@ define([
                     }
 
                     // Find the closest samples and interpolate
-                    var ang = norm(Math.atan2(y, x) - dir);
+                    var ang = ATAN_CACHE[y * COL_SIZE + x];
+                    ang = norm(ang - dir);
                     var normAng = (ang + Math.PI) / (Math.PI*2);
                     var idx = normAng * (samples.length-1);
                     var idxLo = Math.max(Math.floor(idx), 0);
@@ -77,7 +92,7 @@ define([
                     count++;
                 }
             }
-            console.log('Applied ' + count + ' samples');
+            //console.log('Applied ' + count + ' samples');
         };
 
         // Based on the prior values in our map, how likely would it be that the robot returned the given readings?
