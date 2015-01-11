@@ -21,7 +21,7 @@ define([
         var SAMPLE_RAD = 2 * Math.PI / SAMPLE_COUNT;
 
         var pos = [800,700];
-        var dir = 0;
+        var dir = -Math.PI / 2;
 
         var map;
 
@@ -69,6 +69,14 @@ define([
         };
 
         // --------------------------------------- test methods -------------------------------------------------------
+        self.getPos = function() {
+            return pos;
+        };
+
+        self.getAngle = function() {
+            return dir;
+        };
+
         self.drawSamples = function(ctx, samples) {
             var oldFill = ctx.fillStyle;
 

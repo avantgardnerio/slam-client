@@ -22,15 +22,21 @@ define([
     var Robot = function Robot(width, height) {
         var self = {};
 
-        var SENSOR_STDDEV = 3;
+        var SENSOR_STDDEV = 5;
         var WALL_PROBABILITY = 0.05; // From sample data
 
         var pos = [800,700]; // TODO: Hide this knowledge from the robot
-        var dir = 0;
+        var dir = -Math.PI / 2;
         var map = new Map(width, height);
 
+        self.reset = function(p, d) {
+            pos = p.slice();
+            dir = d;
+            map = new Map(width, height);
+        };
+
         self.drive = function (dist, cb) {
-            dist = nextGaussian(dist, 2 * PX_PER_IN);
+            dist = Math.nextGaussian(dist, 1 * PX_PER_IN);
             pos[0] += Math.cos(dir) * dist;
             pos[1] += Math.sin(dir) * dist;
             if (cb) {
@@ -39,7 +45,7 @@ define([
         };
 
         self.turn = function (radians, cb) {
-            radians = nextGaussian(radians, 0.0872664626); // 5 deg
+            radians = Math.nextGaussian(radians, 0.034906585 ); // 2 deg
             dir += radians;
             if (cb) {
                 cb(radians);
@@ -62,7 +68,7 @@ define([
 
                     // Find the closest samples and interpolate
                     var ang = ATAN_CACHE[y * COL_SIZE + x];
-                    ang = norm(ang - dir);
+                    ang = Math.angNorm(ang - dir);
                     var normAng = (ang + Math.PI) / (Math.PI*2);
                     var idx = normAng * (samples.length-1);
                     var idxLo = Math.max(Math.floor(idx), 0);
@@ -85,7 +91,7 @@ define([
                         continue;
                     }
                     var prior = map.getPixel(pos[0]+x, pos[1]+y);
-                    var posterior = conditionalProb(observation, prior, WALL_PROBABILITY);
+                    var posterior = Math.conProb(observation, prior, WALL_PROBABILITY);
                     posterior = Math.min(posterior, 0.9999); // Never allow full certainty
                     posterior = Math.max(posterior, 0.0001); // Never allow full certainty
                     map.setPixel(pos[0]+x, pos[1]+y, posterior);
@@ -136,40 +142,48 @@ define([
         };
 
         // TODO: Linear time impl
-        var norm = function(ang) {
+        Math.angNorm = function(ang) {
             while(ang < -Math.PI) ang += Math.PI*2;
             while(ang > Math.PI) ang -= Math.PI*2;
             return ang;
         };
 
-        var conditionalProb = function(observation, prior, general) {
+        Math.conProb = function(observation, prior, general) {
             var posterior = observation * prior / general;
             return posterior;
         };
 
-        var normDist = function(x, mean, stddev) {
-            var res = 1 / (stddev * Math.sqrt(2 * Math.PI)) * Math.pow(Math.E, -sq(x - mean) / (2 * sq(stddev)));
+        Math.normDist = function(x, mean, stddev) {
+            var res = 1 / (stddev * Math.sqrt(2 * Math.PI)) * Math.pow(Math.E, -Math.sq(x - mean) / (2 * Math.sq(stddev)));
             return res;
         };
 
-        var sq = function(val) {
+        Math.sq = function(val) {
             return val * val;
         };
 
         var pdf = function(dist, sample) {
-            var val = normDist(dist, sample, SENSOR_STDDEV);
+            var val = Math.normDist(dist, sample, SENSOR_STDDEV);
             if(dist > sample) {
                 val = Math.max(val, WALL_PROBABILITY);
             }
             return val;
         };
 
-        var rnd_snd = function () {
+        Math.rnd_snd = function () {
             return (Math.random()*2-1)+(Math.random()*2-1)+(Math.random()*2-1);
         };
 
-        var nextGaussian = function (mean, stdev) {
-            return rnd_snd()*stdev+mean;
+        Math.nextGaussian = function (mean, stdev) {
+            return Math.rnd_snd()*stdev+mean;
+        };
+
+        self.getPos = function() {
+            return pos;
+        };
+
+        self.getAngle = function() {
+            return dir;
         };
 
         self.draw = function (ctx) {
