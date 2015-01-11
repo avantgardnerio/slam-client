@@ -15,7 +15,7 @@ define([
         var doing = false;
 
         // --------------------------------------------- constants ----------------------------------------------------
-        var ROBOT_COUNT = 1;
+        var ROBOT_COUNT = 5;
 
         // --------------------------------------------- events -------------------------------------------------------
         self.invalidate = new signals.Signal();
@@ -37,7 +37,12 @@ define([
         };
 
         self.draw = function (ctx) {
-            robots[0].draw(ctx);
+            robots.forEach(function(robot) {
+                if(robot.bestFit) {
+                    robot.drawMap(ctx);
+                }
+                robot.drawRobot(ctx);
+            });
             doNext();
         };
 
@@ -95,11 +100,21 @@ define([
         var onScanComplete = function (samples) {
             console.log('' + history.length + ' got samples');
             history.push({action: 'scan', data: samples});
-            robots.forEach(function(robot, i) {
+            var bestFit = 0;
+            var bestIdx = undefined;
+            for(var i = 0; i < robots.length; i++) {
+                var robot = robots[i];
                 var fitness = robot.fitness(samples);
+                if(fitness > bestFit) {
+                    bestFit = fitness;
+                    bestIdx = i;
+                }
                 console.log('Robot' + i + ' fitness=' + fitness);
                 robot.applySamples(samples);
-            });
+            }
+            for(var i = 0; i < robots.length; i++) {
+                robots[i].bestFit = i === bestIdx;
+            }
             doing = false;
             self.invalidate.dispatch();
         };

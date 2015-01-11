@@ -6,6 +6,9 @@ define([
     var MockServer = function MockServer() {
         var self = {};
 
+        var TURN_TIME = 1000;
+        var DRIVE_TIME = 1000;
+        var SCAN_TIME = 1000;
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
         var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
@@ -51,18 +54,18 @@ define([
                 }
                 samples.push({radians: mastRad, inches: dist});
             }
-            setTimeout(function() {cb(samples)}, 200);
+            setTimeout(function() {cb(samples)}, SCAN_TIME);
         };
 
         self.drive = function(dist, cb) {
             pos[0] += Math.cos(dir) * dist;
             pos[1] += Math.sin(dir) * dist;
-            setTimeout(function() {cb(dist)}, 200);
+            setTimeout(function() {cb(dist)}, DRIVE_TIME);
         };
 
         self.turn = function(radians, cb) {
             dir += radians;
-            setTimeout(function() {cb(radians)}, 200);
+            setTimeout(function() {cb(radians)}, TURN_TIME);
         };
 
         // --------------------------------------- test methods -------------------------------------------------------
@@ -90,7 +93,7 @@ define([
             ctx.translate(pos[0], pos[1]);
             ctx.rotate(dir);
 
-            ctx.strokeStyle = '#FF0000';
+            ctx.strokeStyle = '#00FF00';
             ctx.strokeRect(-self.SIZE[0]/2*PX_PER_IN, -self.SIZE[1]/2*PX_PER_IN, self.SIZE[0]*PX_PER_IN, self.SIZE[1]*PX_PER_IN);
             ctx.beginPath();
             ctx.moveTo(0, 0);

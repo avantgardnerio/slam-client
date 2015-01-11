@@ -55,6 +55,14 @@ define([
         };
 
         self.setPixel = function(x, y, val) {
+            x = Math.round(x);
+            y = Math.round(y);
+            if(y < 0 || x < 0) {
+                return;
+            }
+            if(y >= height || x >= width) {
+                return;
+            }
             probability[y * width + x] = val;
         };
 

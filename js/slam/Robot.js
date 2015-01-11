@@ -6,10 +6,9 @@ define([
     var Robot = function Robot(width, height) {
         var self = {};
 
+        self.SIZE = [6, 6];      // Inches
         self.SENSOR_RANGE_MIN = 6;  // Inches
         self.SENSOR_RANGE_MAX = 36;  // Inches
-        var SAMPLE_COUNT = 2 * Math.PI * self.SENSOR_RANGE_MAX; // Take a sample every inch at worst
-        var SAMPLE_RAD = 2 * Math.PI / SAMPLE_COUNT;
         var SENSOR_STDDEV = 3;
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
@@ -21,6 +20,7 @@ define([
         var map = new Map(width, height);
 
         self.drive = function (dist, cb) {
+            dist = nextGaussian(dist, 2 * PX_PER_IN);
             pos[0] += Math.cos(dir) * dist;
             pos[1] += Math.sin(dir) * dist;
             if (cb) {
@@ -29,6 +29,7 @@ define([
         };
 
         self.turn = function (radians, cb) {
+            radians = nextGaussian(radians, 0.0872664626); // 5 deg
             dir += radians;
             if (cb) {
                 cb(radians);
@@ -37,7 +38,8 @@ define([
 
         self.applySamples = function (samples) {
 
-            // Scan a box that overlaps with the range of the senser
+            // Scan a box that overlaps with the range of the sensor
+            var count = 0;
             for(var y = -server.SENSOR_RANGE_MAX * PX_PER_IN; y < server.SENSOR_RANGE_MAX * PX_PER_IN; y++) {
                 for(var x = -server.SENSOR_RANGE_MAX * PX_PER_IN; x < server.SENSOR_RANGE_MAX * PX_PER_IN; x++) {
 
@@ -72,9 +74,13 @@ define([
                     }
                     var prior = map.getPixel(pos[0]+x, pos[1]+y);
                     var posterior = conditionalProb(observation, prior, WALL_PROBABILITY);
+                    posterior = Math.min(posterior, 0.9999); // Never allow full certainty
+                    posterior = Math.max(posterior, 0.0001); // Never allow full certainty
                     map.setPixel(pos[0]+x, pos[1]+y, posterior);
+                    count++;
                 }
             }
+            console.log('Applied ' + count + ' samples');
         };
 
         // Based on the prior values in our map, how likely would it be that the robot returned the given readings?
@@ -101,6 +107,7 @@ define([
                 count++;
             }
             total /= count;
+            self.cachedFitness = total;
             return total;
         };
 
@@ -145,8 +152,40 @@ define([
             return val;
         };
 
+        var rnd_snd = function () {
+            return (Math.random()*2-1)+(Math.random()*2-1)+(Math.random()*2-1);
+        };
+
+        var nextGaussian = function (mean, stdev) {
+            return rnd_snd()*stdev+mean;
+        };
+
         self.draw = function (ctx) {
+        };
+
+        self.drawMap = function(ctx) {
             map.draw(ctx);
+        };
+
+        self.drawRobot = function(ctx) {
+            var oldStroke = ctx.strokeStyle;
+            ctx.translate(pos[0], pos[1]);
+            ctx.rotate(dir);
+
+            ctx.strokeStyle = self.bestFit ? '#000000' : '#FF0000';
+            ctx.strokeRect(-self.SIZE[0]/2*PX_PER_IN, -self.SIZE[1]/2*PX_PER_IN, self.SIZE[0]*PX_PER_IN, self.SIZE[1]*PX_PER_IN);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(self.SIZE[1]/2*PX_PER_IN, 0);
+            ctx.stroke();
+
+            ctx.rotate(-dir);
+            ctx.translate(-pos[0], -pos[1]);
+            ctx.strokeStyle = oldStroke;
+
+            if(self.cachedFitness !== undefined) {
+                ctx.fillText(self.cachedFitness.toFixed(3), pos[0] + self.SIZE[0]*2, pos[1] + self.SIZE[1]*2);
+            }
         };
 
         return self;
