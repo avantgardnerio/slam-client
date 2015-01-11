@@ -77,34 +77,28 @@ define([
             }
         };
 
-        self.scan = function(cb) {
-            var samples = [];
-            for(var mastRad = -Math.PI; mastRad <= Math.PI; mastRad += SAMPLE_RAD) {
-                var absRad = mastRad + dir;
+        // Based on the prior values in our map, how likely would it be that the robot returned the given readings?
+        self.fitness = function(samples) {
+            var total = 0;
+            var count = 0;
+            for(var i = 0; i < samples.length; i++) {
+                var sample = samples[i];
+                if(sample.inches === undefined) {
+                    continue;
+                }
+                var absRad = sample.radians + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
-                var dist = undefined;
+                var norm = 0;
                 for(var d = self.SENSOR_RANGE_MIN; d < self.SENSOR_RANGE_MAX; d += 0.5) {
                     var x = pos[0] + vec[0] * d * PX_PER_IN;
                     var y = pos[1] + vec[1] * d * PX_PER_IN;
-                    var probability = oversample(x, y);
-                    if(Math.random() < probability) {
-                        dist = d;
-                        break;
-                    }
+                    norm += oversample(x, y);
                 }
-                samples.push({radians: mastRad, inches: dist});
-            }
-            cb(samples);
-        };
-
-        self.fitness = function(predicted, actual) {
-            var count = Math.min(predicted.length, actual.length);
-            var total = 0;
-            for(var i = 0; i < count; i++) {
-                var pred = predicted[i].inches ? predicted[i].inches : self.SENSOR_RANGE_MAX;
-                var act = actual[i].inches ?  actual[i].inches : self.SENSOR_RANGE_MAX;
-                var diff = Math.abs(pred - act) / self.SENSOR_RANGE_MAX;
-                total += diff;
+                var x = pos[0] + vec[0] * sample.inches * PX_PER_IN;
+                var y = pos[1] + vec[1] * sample.inches * PX_PER_IN;
+                var probability = oversample(x, y);
+                total += probability / norm;
+                count++;
             }
             total /= count;
             return total;
