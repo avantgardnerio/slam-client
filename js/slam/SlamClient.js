@@ -1,8 +1,10 @@
 define([
     'signals',
+    'slam/Math',
     'slam/Robot',
     'slam/MockServer'
 ], function SlamClient(signals,
+                       Math,
                        Robot,
                        server) {
     var SlamClient = function SlamClient(width, height) {
@@ -66,18 +68,20 @@ define([
             // TODO: Un hard code
             if(history.length === 0) {
 
-            } else if(history.length <= 1) {
+            } else if(history.length <= 24) {
+                self.drive(6 * PX_PER_IN);
+            } else if(history.length <= 25) {
                 self.turn(-Math.PI/2);
-            } else if(history.length <= 14) {
-                self.drive(12 * PX_PER_IN);
-            } else if(history.length <= 15) {
+            } else if(history.length <= 55) {
+                self.drive(6 * PX_PER_IN);
+            } else if(history.length <= 56) {
                 self.turn(-Math.PI/2);
-            } else if(history.length <= 30) {
-                self.drive(12 * PX_PER_IN);
-            } else if(history.length <= 31) {
+            } else if(history.length <= 84) {
+                self.drive(6 * PX_PER_IN);
+            } else if(history.length <= 85) {
                 self.turn(-Math.PI/2);
-            } else if(history.length <= 42) {
-                self.drive(12 * PX_PER_IN);
+            } else if(history.length <= 110) {
+                self.drive(6 * PX_PER_IN);
             }
         };
 
@@ -100,21 +104,39 @@ define([
         var onScanComplete = function (samples) {
             console.log('' + history.length + ' got samples');
             history.push({action: 'scan', data: samples});
-            var bestFit = 0;
-            var bestIdx = undefined;
-            for(var i = 0; i < robots.length; i++) {
-                var robot = robots[i];
+
+            // Calculate fitness based on how well each robot would have guessed these samples
+            var best = robots.reduce(function(best, robot, idx) {
                 var fitness = robot.fitness(samples);
-                if(fitness > bestFit) {
-                    bestFit = fitness;
-                    bestIdx = i;
+                if(fitness > best.value) {
+                    best.idx = idx;
+                    best.value = fitness;
                 }
-                console.log('Robot' + i + ' fitness=' + fitness);
+                return best;
+            }, {idx: undefined, value: Number.NEGATIVE_INFINITY});
+            robots.forEach(function(robot, idx) {
+                robot.bestFit = idx == best.idx;
+            });
+
+            // Tell the robots to update their maps based on the new data
+            robots.forEach(function(robot) {
                 robot.applySamples(samples);
-            }
-            for(var i = 0; i < robots.length; i++) {
-                robots[i].bestFit = i === bestIdx;
-            }
+            });
+
+            // Find mean position
+            var meanPos = robots.reduce(function(meanPos, robot) {
+                return vec2.add(meanPos, meanPos, robot.getPos());
+            }, [0,0]);
+            vec2.scale(meanPos, meanPos, robots.length);
+
+            // Figure out distance and standard deviation
+            var dists = robots.map(function(robot) {
+                return vec2.distance(meanPos, robot.getPos());
+            });
+            var distMean = Math.avg(dists);
+            var distStdDv = Math.stddev(dists);
+            console.log('distMean=' + distMean + ' distStdDv=' + distStdDv);
+
             doing = false;
             self.invalidate.dispatch();
         };

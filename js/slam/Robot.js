@@ -1,7 +1,9 @@
 define([
+    'slam/Math',
     'slam/Map',
     'slam/MockServer'
-], function Robot(Map,
+], function Robot(Math,
+                  Map,
                   server) {
 
     var PX_PER_FT = 40; // TODO: Un hard code
@@ -141,41 +143,12 @@ define([
             return total;
         };
 
-        // TODO: Linear time impl
-        Math.angNorm = function(ang) {
-            while(ang < -Math.PI) ang += Math.PI*2;
-            while(ang > Math.PI) ang -= Math.PI*2;
-            return ang;
-        };
-
-        Math.conProb = function(observation, prior, general) {
-            var posterior = observation * prior / general;
-            return posterior;
-        };
-
-        Math.normDist = function(x, mean, stddev) {
-            var res = 1 / (stddev * Math.sqrt(2 * Math.PI)) * Math.pow(Math.E, -Math.sq(x - mean) / (2 * Math.sq(stddev)));
-            return res;
-        };
-
-        Math.sq = function(val) {
-            return val * val;
-        };
-
         var pdf = function(dist, sample) {
             var val = Math.normDist(dist, sample, SENSOR_STDDEV);
             if(dist > sample) {
                 val = Math.max(val, WALL_PROBABILITY);
             }
             return val;
-        };
-
-        Math.rnd_snd = function () {
-            return (Math.random()*2-1)+(Math.random()*2-1)+(Math.random()*2-1);
-        };
-
-        Math.nextGaussian = function (mean, stdev) {
-            return Math.rnd_snd()*stdev+mean;
         };
 
         self.getPos = function() {
