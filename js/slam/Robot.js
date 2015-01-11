@@ -6,9 +6,6 @@ define([
     var Robot = function Robot(width, height) {
         var self = {};
 
-        self.SIZE = [6, 6];      // Inches
-        self.SENSOR_RANGE_MIN = 6;  // Inches
-        self.SENSOR_RANGE_MAX = 36;  // Inches
         var SENSOR_STDDEV = 3;
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
@@ -95,7 +92,7 @@ define([
                 var absRad = sample.radians + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
                 var norm = 0;
-                for(var d = self.SENSOR_RANGE_MIN; d < self.SENSOR_RANGE_MAX; d += 0.5) {
+                for(var d = server.SENSOR_RANGE_MIN; d < server.SENSOR_RANGE_MAX; d += 0.5) {
                     var x = pos[0] + vec[0] * d * PX_PER_IN;
                     var y = pos[1] + vec[1] * d * PX_PER_IN;
                     norm += oversample(x, y);
@@ -173,10 +170,10 @@ define([
             ctx.rotate(dir);
 
             ctx.strokeStyle = self.bestFit ? '#000000' : '#FF0000';
-            ctx.strokeRect(-self.SIZE[0]/2*PX_PER_IN, -self.SIZE[1]/2*PX_PER_IN, self.SIZE[0]*PX_PER_IN, self.SIZE[1]*PX_PER_IN);
+            ctx.strokeRect(-server.SIZE[0]/2*PX_PER_IN, -server.SIZE[1]/2*PX_PER_IN, server.SIZE[0]*PX_PER_IN, server.SIZE[1]*PX_PER_IN);
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(self.SIZE[1]/2*PX_PER_IN, 0);
+            ctx.lineTo(server.SIZE[1]/2*PX_PER_IN, 0);
             ctx.stroke();
 
             ctx.rotate(-dir);
@@ -184,7 +181,7 @@ define([
             ctx.strokeStyle = oldStroke;
 
             if(self.cachedFitness !== undefined) {
-                ctx.fillText(self.cachedFitness.toFixed(3), pos[0] + self.SIZE[0]*2, pos[1] + self.SIZE[1]*2);
+                ctx.fillText(self.cachedFitness.toFixed(3), pos[0] + server.SIZE[0]*2, pos[1] + server.SIZE[1]*2);
             }
         };
 
