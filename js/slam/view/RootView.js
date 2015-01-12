@@ -1,11 +1,13 @@
 define([
     'jquery',
+    'knockout',
     'text!template/RootView.html',
     'slam/view/KoView',
     'slam/MockServer',
     'slam/SlamClient'
 ], function(
     $,
+    ko,
     template,
     KoView,
     server,
@@ -14,6 +16,7 @@ define([
     var RootView = function() {
         var self = new KoView();
 
+        // ----------------------------------------------- constants --------------------------------------------------
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
         var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
@@ -24,6 +27,10 @@ define([
 
         var client;
 
+        // ----------------------------------------------- observables ------------------------------------------------
+        self.robots = ko.observableArray([]);
+
+        // ----------------------------------------------- constructor ------------------------------------------------
         var init = function() {
 
             // Create the canvas
@@ -36,7 +43,9 @@ define([
             background.src = 'img/floor_plan_example.png'; // TODO: Un hard code
         };
 
+        var onLoad = self.onLoad;
         self.onLoad = function() {
+            onLoad();
             self.invalidate();
         };
 
@@ -70,6 +79,7 @@ define([
             server.setMap(imgData);
             client = new SlamClient(background.width, background.height);
             client.invalidate.add(self.invalidate);
+            self.robots(client.getRobots());
 
             self.invalidate();
             client.start();

@@ -29,7 +29,7 @@ define([
         // ------------------------------------------ constructor -----------------------------------------------------
         var ctor = function () {
             for (var i = 0; i < ROBOT_COUNT; i++) {
-                robots.push(new Robot(width, height));
+                robots.push(new Robot(''+i, width, height));
             }
         };
 
@@ -56,6 +56,10 @@ define([
         self.drive = function(inches) {
             console.log('' + history.length + ' driving');
             server.drive(inches, onDriveComplete);
+        };
+
+        self.getRobots = function() {
+            return robots;
         };
 
         // ----------------------------------------- private methods --------------------------------------------------
