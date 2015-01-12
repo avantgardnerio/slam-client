@@ -15,6 +15,7 @@ define([
         var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
 
         var doing = false;
+        var curBot;
 
         // --------------------------------------------- constants ----------------------------------------------------
         var ROBOT_COUNT = 20;
@@ -34,13 +35,17 @@ define([
         };
 
         // ------------------------------------------ public methods --------------------------------------------------
+        self.showBot = function(bot) {
+            curBot = bot;
+        };
+
         self.start = function () {
             server.scan(onScanComplete);
         };
 
         self.draw = function (ctx) {
             robots.forEach(function(robot) {
-                if(robot.bestFit) {
+                if(curBot === robot) {
                     robot.drawMap(ctx);
                 }
                 robot.drawRobot(ctx);

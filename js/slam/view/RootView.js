@@ -29,6 +29,7 @@ define([
 
         // ----------------------------------------------- observables ------------------------------------------------
         self.robots = ko.observableArray([]);
+        self.selectedBot = ko.observable();
 
         // ----------------------------------------------- constructor ------------------------------------------------
         var init = function() {
@@ -41,6 +42,8 @@ define([
             background = new Image();
             background.onload = onImgLoad;
             background.src = 'img/floor_plan_example.png'; // TODO: Un hard code
+
+            self.selectedBot.subscribe(botChange);
         };
 
         var onLoad = self.onLoad;
@@ -54,6 +57,10 @@ define([
         };
 
         // -------------------------------------- private methods -----------------------------------------------------
+        var botChange = function(newVal) {
+            client.showBot(newVal);
+        };
+
         var draw = function() {
             if(client === undefined) {
                 return;
