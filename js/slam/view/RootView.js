@@ -27,21 +27,13 @@ define([
         var init = function() {
 
             // Create the canvas
-            cnvMain = $('<canvas/>')[0];
+            cnvMain = $(self.getElement()).find('.cnvMain')[0];
             ctx = cnvMain.getContext("2d");
 
             // Load the background image
             background = new Image();
             background.onload = onImgLoad;
             background.src = 'img/floor_plan_example.png'; // TODO: Un hard code
-
-            // Handle window resizing
-            $(window).resize(onResize);
-            onResize();
-        };
-
-        self.getElement = function() {
-            return cnvMain;
         };
 
         self.onLoad = function() {
@@ -68,6 +60,11 @@ define([
 
         // ---------------------------------------- helper methods ----------------------------------------------------
         var onImgLoad = function() {
+            $(cnvMain).attr('width', background.width);
+            $(cnvMain).attr('height', background.height);
+            $(cnvMain).width(background.width);
+            $(cnvMain).height(background.height);
+
             ctx.drawImage(background, 0, 0, background.width, background.height);
             var imgData = ctx.getImageData(0, 0, background.width, background.height);
             server.setMap(imgData);
@@ -76,12 +73,6 @@ define([
 
             self.invalidate();
             client.start();
-        };
-
-        var onResize = function() {
-            $(cnvMain).attr('width', $(window).innerWidth());
-            $(cnvMain).attr('height', $(window).innerHeight());
-            self.invalidate();
         };
 
         // ----------------------------------------- overrides --------------------------------------------------------
