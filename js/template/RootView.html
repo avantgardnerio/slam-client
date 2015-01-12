@@ -1,6 +1,41 @@
 <div>
     <div class="dvControls" style="position: absolute; width: 250px; float: left">
-        <select data-bind="options: robots" />
+        <table>
+            <tr>
+                <td>
+                    Robot
+                </td>
+                <td>
+                    <select data-bind="options: robots" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Turn
+                </td>
+                <td>
+                    <input type="text" style="width: 80px;" />
+                    <button>Turn</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Drive
+                </td>
+                <td>
+                    <input type="text" style="width: 80px;" />
+                    <button>Drive</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Scan
+                </td>
+                <td>
+                    <button>Scan</button>
+                </td>
+            </tr>
+        </table>
     </div>
     <canvas class="cnvMain" style="position: absolute; left: 250px; float: right" />
 </div>
