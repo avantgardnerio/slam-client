@@ -18,6 +18,7 @@ define([
 
         var doing = false;
         var curBot;
+        var allBots = true;
 
         // --------------------------------------------- constants ----------------------------------------------------
         var ROBOT_COUNT = 20;
@@ -41,6 +42,10 @@ define([
             curBot = bot;
         };
 
+        self.showAll = function(val) {
+            self.allBots = val;
+        };
+
         self.start = function () {
             server.scan(onScanComplete);
         };
@@ -49,6 +54,8 @@ define([
             robots.forEach(function (robot) {
                 if (curBot === robot) {
                     robot.drawMap(ctx);
+                }
+                if(self.allBots === true || curBot === robot) {
                     robot.drawRobot(ctx);
                 }
             });

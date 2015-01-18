@@ -32,6 +32,7 @@ define([
         self.selectedBot = ko.observable({
             cachedFitness: 1
         });
+        self.showAll = ko.observable(true);
 
         // ----------------------------------------------- constructor ------------------------------------------------
         var init = function() {
@@ -46,6 +47,7 @@ define([
             background.src = 'img/floor_plan_example.png'; // TODO: Un hard code
 
             self.selectedBot.subscribe(botChange);
+            self.showAll.subscribe(allChange);
         };
 
 
@@ -70,6 +72,14 @@ define([
                 return;
             }
             client.showBot(newVal);
+            self.invalidate();
+        };
+
+        var allChange = function(newVal) {
+            if(client === undefined) {
+                return;
+            }
+            client.showAll(newVal);
             self.invalidate();
         };
 
