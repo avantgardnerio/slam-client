@@ -1,9 +1,11 @@
 define([
     'signals',
+    'glmat',
     'slam/Math',
     'slam/Robot',
     'slam/MockServer'
 ], function SlamClient(signals,
+                       glmat,
                        Math,
                        Robot,
                        server) {
@@ -134,13 +136,13 @@ define([
 
             // Find mean position
             var meanPos = robots.reduce(function(meanPos, robot) {
-                return vec2.add(meanPos, meanPos, robot.getPos());
+                return glmat.vec2.add(meanPos, meanPos, robot.getPos());
             }, [0,0]);
-            vec2.scale(meanPos, meanPos, robots.length);
+            glmat.vec2.scale(meanPos, meanPos, robots.length);
 
             // Figure out distance and standard deviation
             var dists = robots.map(function(robot) {
-                return vec2.distance(meanPos, robot.getPos());
+                return glmat.vec2.distance(meanPos, robot.getPos());
             });
             var distMean = Math.avg(dists);
             var distStdDv = Math.stddev(dists);
