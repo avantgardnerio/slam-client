@@ -54,6 +54,7 @@ define([
             robots.forEach(function (robot) {
                 if (curBot === robot) {
                     robot.drawMap(ctx);
+                    robot.drawSamples(ctx);
                 }
                 if(self.allBots === true || curBot === robot) {
                     robot.drawRobot(ctx);
