@@ -124,16 +124,14 @@ define([
                 }
                 var absRad = sample.radians + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
-                var norm = 0;
-                for(var d = server.SENSOR_RANGE_MIN; d < server.SENSOR_RANGE_MAX; d += 0.5) {
+                var probability = 1;
+                for(var d = server.SENSOR_RANGE_MIN; d < sample.inches; d += 0.5) {
                     var x = pos[0] + vec[0] * d * PX_PER_IN;
                     var y = pos[1] + vec[1] * d * PX_PER_IN;
-                    norm += oversample(x, y);
+                    var obs = oversample(x, y);
+                    probability *= (1 - obs);
                 }
-                var x = pos[0] + vec[0] * sample.inches * PX_PER_IN;
-                var y = pos[1] + vec[1] * sample.inches * PX_PER_IN;
-                var probability = oversample(x, y);
-                total += probability / norm;
+                total += probability;
                 count++;
             }
             total /= count;
