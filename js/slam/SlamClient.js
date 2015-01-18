@@ -18,7 +18,7 @@ define([
 
         var doing = false;
         var curBot;
-        var allBots = true;
+        self.allBots = true;
 
         // --------------------------------------------- constants ----------------------------------------------------
         var ROBOT_COUNT = 20;
