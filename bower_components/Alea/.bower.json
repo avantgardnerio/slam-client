@@ -1,0 +1,16 @@
+{
+  "name": "Alea",
+  "main": "alea.js",
+  "description": "A better random number generator. Based on Johannes Baagøe's implementation.",
+  "homepage": "https://github.com/dmauro/Alea",
+  "_release": "8b66525246",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "8b66525246be0b32207d08531a075bdd8771cadb"
+  },
+  "_source": "git://github.com/dmauro/Alea.git",
+  "_target": "*",
+  "_originalSource": "Alea",
+  "_direct": true
+}

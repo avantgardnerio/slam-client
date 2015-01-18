@@ -1,0 +1,22 @@
+{
+  "name": "Alea PNRG",
+  "version": "1.0.0",
+  "description": "A better number generator. Based on Johannes Baagøe's implementation.",
+  "main": "alea.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dmauro/alea.git"
+  },
+  "keywords": [
+    "Alea",
+    "PNRG",
+    "random",
+    "Johannes Baagøe",
+    "psuedo random"
+  ],
+  "author": "David Mauro",
+  "license": "Apache 2.0"
+}

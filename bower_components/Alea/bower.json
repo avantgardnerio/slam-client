@@ -1,0 +1,6 @@
+{
+  "name"        : "Alea",
+  "version"     : "1.00",
+  "main"        : "alea.js",
+  "description" : "A better random number generator. Based on Johannes Baagøe's implementation."
+}
