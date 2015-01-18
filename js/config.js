@@ -6,6 +6,7 @@ var config = {
         knockout: '../bower_components/knockout/dist/knockout',
         glmat: '../bower_components/gl-matrix/dist/gl-matrix',
         alea: '../bower_components/Alea/alea',
+        tinycolor: '../bower_components/tinycolor/tinycolor',
         text: '../bower_components/requirejs-text/text'
     },
     shim: {
@@ -14,6 +15,9 @@ var config = {
         },
         'alea': {
             exports: 'alea'
+        },
+        'tinycolor': {
+            exports: 'tinycolor'
         }
     }
 };

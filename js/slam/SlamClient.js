@@ -125,9 +125,10 @@ define([
                 }
                 return best;
             }, {idx: undefined, value: Number.NEGATIVE_INFINITY});
-            robots.forEach(function(robot, idx) {
-                robot.bestFit = idx == best.idx;
-            });
+            var min = robots.reduce(function(prev, robot) {return Math.min(prev, robot.cachedFitness)}, Number.POSITIVE_INFINITY);
+            var max = robots.reduce(function(prev, robot) {return Math.max(prev, robot.cachedFitness)}, Number.NEGATIVE_INFINITY);
+            var range = max - min;
+            robots.forEach(function(robot) { robot.cachedFitness = (robot.cachedFitness-min)/range; });
 
             // Tell the robots to update their maps based on the new data
             robots.forEach(function(robot) {

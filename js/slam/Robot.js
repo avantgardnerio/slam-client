@@ -1,11 +1,15 @@
 define([
+    'tinycolor',
     'slam/Math',
     'slam/Map',
     'slam/MockServer'
-], function Robot(Math,
+], function Robot(tinycolor,
+                  Math,
                   Map,
                   server) {
 
+    var COLOR_GOOD = Math.hsbVec(tinycolor('#00B000'));
+    var COLOR_BAD = Math.hsbVec(tinycolor('#600000'));
     var PX_PER_FT = 40; // TODO: Un hard code
     var IN_PER_FT = 12;
     var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
@@ -177,7 +181,7 @@ define([
             ctx.translate(pos[0], pos[1]);
             ctx.rotate(dir);
 
-            ctx.strokeStyle = self.bestFit ? '#000000' : '#FF0000';
+            ctx.strokeStyle = Math.hsbColor(Math.lerp(COLOR_BAD, COLOR_GOOD, self.cachedFitness)).toRgbString();
             ctx.strokeRect(-server.SIZE[0]/2*PX_PER_IN, -server.SIZE[1]/2*PX_PER_IN, server.SIZE[0]*PX_PER_IN, server.SIZE[1]*PX_PER_IN);
             ctx.beginPath();
             ctx.moveTo(0, 0);
@@ -187,10 +191,6 @@ define([
             ctx.rotate(-dir);
             ctx.translate(-pos[0], -pos[1]);
             ctx.strokeStyle = oldStroke;
-
-            if(self.cachedFitness !== undefined) {
-                ctx.fillText(self.cachedFitness.toFixed(3), pos[0] + server.SIZE[0]*2, pos[1] + server.SIZE[1]*2);
-            }
         };
 
         return self;
