@@ -32,12 +32,12 @@ define([
         // ------------------------------------------ constructor -----------------------------------------------------
         var ctor = function () {
             for (var i = 0; i < ROBOT_COUNT; i++) {
-                robots.push(new Robot(''+i, width, height));
+                robots.push(new Robot('' + i, width, height));
             }
         };
 
         // ------------------------------------------ public methods --------------------------------------------------
-        self.showBot = function(bot) {
+        self.showBot = function (bot) {
             curBot = bot;
         };
 
@@ -46,8 +46,8 @@ define([
         };
 
         self.draw = function (ctx) {
-            robots.forEach(function(robot) {
-                if(curBot === robot) {
+            robots.forEach(function (robot) {
+                if (curBot === robot) {
                     robot.drawMap(ctx);
                 }
                 robot.drawRobot(ctx);
@@ -55,48 +55,48 @@ define([
             doNext();
         };
 
-        self.turn = function(radians) {
+        self.turn = function (radians) {
             console.log('' + history.length + ' turning');
             server.turn(radians, onTurnComplete);
         };
 
-        self.drive = function(inches) {
+        self.drive = function (inches) {
             console.log('' + history.length + ' driving');
             server.drive(inches, onDriveComplete);
         };
 
-        self.getRobots = function() {
+        self.getRobots = function () {
             return robots;
         };
 
         // ----------------------------------------- private methods --------------------------------------------------
-        var doNext = function() {
-            if(doing) {
+        var doNext = function () {
+            if (doing) {
                 return;
             }
             doing = true;
 
             // TODO: Un hard code
-            if(history.length === 0) {
+            if (history.length === 0) {
 
-            } else if(history.length <= 24) {
+            } else if (history.length <= 24) {
                 self.drive(6 * PX_PER_IN);
-            } else if(history.length <= 25) {
-                self.turn(-Math.PI/2);
-            } else if(history.length <= 55) {
+            } else if (history.length <= 25) {
+                self.turn(-Math.PI / 2);
+            } else if (history.length <= 55) {
                 self.drive(6 * PX_PER_IN);
-            } else if(history.length <= 56) {
-                self.turn(-Math.PI/2);
-            } else if(history.length <= 84) {
+            } else if (history.length <= 56) {
+                self.turn(-Math.PI / 2);
+            } else if (history.length <= 84) {
                 self.drive(6 * PX_PER_IN);
-            } else if(history.length <= 85) {
-                self.turn(-Math.PI/2);
-            } else if(history.length <= 110) {
+            } else if (history.length <= 85) {
+                self.turn(-Math.PI / 2);
+            } else if (history.length <= 110) {
                 self.drive(6 * PX_PER_IN);
             }
         };
 
-        var onTurnComplete = function(measuredRads) {
+        var onTurnComplete = function (measuredRads) {
             console.log('' + history.length + ' finished turn');
             robots.forEach(function (robot) {
                 robot.turn(measuredRads);
@@ -104,7 +104,7 @@ define([
             server.scan(onScanComplete);
         };
 
-        var onDriveComplete = function(measuredDist) {
+        var onDriveComplete = function (measuredDist) {
             console.log('' + history.length + ' finished drive');
             robots.forEach(function (robot) {
                 robot.drive(measuredDist);
@@ -117,32 +117,33 @@ define([
             history.push({action: 'scan', data: samples});
 
             // Calculate fitness based on how well each robot would have guessed these samples
-            var best = robots.reduce(function(best, robot, idx) {
-                var fitness = robot.fitness(samples);
-                if(fitness > best.value) {
-                    best.idx = idx;
-                    best.value = fitness;
-                }
-                return best;
-            }, {idx: undefined, value: Number.NEGATIVE_INFINITY});
-            var min = robots.reduce(function(prev, robot) {return Math.min(prev, robot.cachedFitness)}, Number.POSITIVE_INFINITY);
-            var max = robots.reduce(function(prev, robot) {return Math.max(prev, robot.cachedFitness)}, Number.NEGATIVE_INFINITY);
+            robots.forEach(function (robot) {
+                robot.fitness(samples);
+            });
+            var min = robots.reduce(function (prev, robot) {
+                return Math.min(prev, robot.cachedFitness)
+            }, Number.POSITIVE_INFINITY);
+            var max = robots.reduce(function (prev, robot) {
+                return Math.max(prev, robot.cachedFitness)
+            }, Number.NEGATIVE_INFINITY);
             var range = max - min;
-            robots.forEach(function(robot) { robot.cachedFitness = (robot.cachedFitness-min)/range; });
+            robots.forEach(function (robot) {
+                robot.cachedFitness = range > 0 ? (robot.cachedFitness - min) / range : 1;
+            });
 
             // Tell the robots to update their maps based on the new data
-            robots.forEach(function(robot) {
+            robots.forEach(function (robot) {
                 robot.applySamples(samples);
             });
 
             // Find mean position
-            var meanPos = robots.reduce(function(meanPos, robot) {
+            var meanPos = robots.reduce(function (meanPos, robot) {
                 return glmat.vec2.add(meanPos, meanPos, robot.getPos());
-            }, [0,0]);
+            }, [0, 0]);
             glmat.vec2.scale(meanPos, meanPos, robots.length);
 
             // Figure out distance and standard deviation
-            var dists = robots.map(function(robot) {
+            var dists = robots.map(function (robot) {
                 return glmat.vec2.distance(meanPos, robot.getPos());
             });
             var distMean = Math.avg(dists);
