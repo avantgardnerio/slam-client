@@ -37,6 +37,7 @@ define([
         var pos = [800, 700]; // TODO: Hide this knowledge from the robot
         var dir = -Math.PI / 2;
         var map = new Map(width, height);
+        var history = [];
 
         self.name = name;
 
@@ -169,18 +170,29 @@ define([
                 }
                 var absRad = sample.radians + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
-                var probability = 1;
-                for (var d = server.SENSOR_RANGE_MIN; d < sample.inches; d += 0.5) {
+                var sum = 0;
+                var ar = [];
+                for (var d = server.SENSOR_RANGE_MIN; d < server.SENSOR_RANGE_MAX; d += 0.5) {
                     var x = pos[0] + vec[0] * d * PX_PER_IN;
                     var y = pos[1] + vec[1] * d * PX_PER_IN;
                     var obs = oversample(x, y);
-                    probability *= (1 - obs);
+                    sum += obs;
+                    ar.push({obs: obs, d: d});
                 }
-                total += probability;
+                var guess = Math.random() * sum;
+                var tmp = 0;
+                for(var j = 0; j < ar.length; j++) {
+                    tmp += ar[j].obs;
+                    if(guess < tmp) {
+                        total += Math.sq(Math.abs(sample.inches - ar[j].d));
+                    }
+                }
                 count++;
             }
             total /= count;
-            self.cachedFitness = total;
+            history.push(total);
+            var hs = history.reduce(function(val, prev) {return prev + val;}, 0);
+            self.cachedFitness = hs / history.length;
             return total;
         };
 

@@ -64,6 +64,7 @@ define([
 
         self.step = function() {
             client.step();
+            self.robots(client.getRobots());
         };
 
         // -------------------------------------- private methods -----------------------------------------------------

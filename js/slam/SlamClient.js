@@ -54,7 +54,7 @@ define([
             robots.forEach(function (robot) {
                 if (curBot === robot) {
                     robot.drawMap(ctx);
-                    robot.drawSamples(ctx);
+                    //robot.drawSamples(ctx);
                 }
                 if(self.allBots === true || curBot === robot) {
                     robot.drawRobot(ctx);
@@ -157,6 +157,8 @@ define([
             var distMean = Math.avg(dists);
             var distStdDv = Math.stddev(dists);
             console.log('distMean=' + distMean + ' distStdDv=' + distStdDv);
+
+            robots.sort(function(a,b) {return a.cachedFitness - b.cachedFitness;});
 
             doing = false;
             self.invalidate.dispatch();
