@@ -1,4 +1,6 @@
-define([], function() {
+define(['alea'], function(Alea) {
+
+    var prng = new Alea(42);
 
     Math.stddev = function(ar) {
         var mean = Math.avg(ar);
@@ -40,7 +42,7 @@ define([], function() {
     };
 
     Math.rnd_snd = function () {
-        return (Math.random()*2-1)+(Math.random()*2-1)+(Math.random()*2-1);
+        return (prng()*2-1)+(prng()*2-1)+(prng()*2-1);
     };
 
     Math.nextGaussian = function (mean, stdev) {
