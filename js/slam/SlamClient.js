@@ -49,10 +49,9 @@ define([
             robots.forEach(function (robot) {
                 if (curBot === robot) {
                     robot.drawMap(ctx);
+                    robot.drawRobot(ctx);
                 }
-                robot.drawRobot(ctx);
             });
-            doNext();
         };
 
         self.turn = function (radians) {
@@ -70,7 +69,7 @@ define([
         };
 
         // ----------------------------------------- private methods --------------------------------------------------
-        var doNext = function () {
+        self.step = function () {
             if (doing) {
                 return;
             }
@@ -126,6 +125,7 @@ define([
             var max = robots.reduce(function (prev, robot) {
                 return Math.max(prev, robot.cachedFitness)
             }, Number.NEGATIVE_INFINITY);
+            console.log('best=' + max + ' worst=' + min);
             var range = max - min;
             robots.forEach(function (robot) {
                 robot.cachedFitness = range > 0 ? (robot.cachedFitness - min) / range : 1;

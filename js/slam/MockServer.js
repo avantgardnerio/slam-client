@@ -6,9 +6,9 @@ define([
     var MockServer = function MockServer() {
         var self = {};
 
-        var TURN_TIME = 200;
-        var DRIVE_TIME = 200;
-        var SCAN_TIME = 200;
+        var TURN_TIME = 0;
+        var DRIVE_TIME = 0;
+        var SCAN_TIME = 0;
         var PX_PER_FT = 40; // TODO: Un hard code
         var IN_PER_FT = 12;
         var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system

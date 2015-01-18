@@ -29,7 +29,9 @@ define([
 
         // ----------------------------------------------- observables ------------------------------------------------
         self.robots = ko.observableArray([]);
-        self.selectedBot = ko.observable();
+        self.selectedBot = ko.observable({
+            cachedFitness: 1
+        });
 
         // ----------------------------------------------- constructor ------------------------------------------------
         var init = function() {
@@ -46,6 +48,8 @@ define([
             self.selectedBot.subscribe(botChange);
         };
 
+
+        // --------------------------------------------- public methods -----------------------------------------------
         var onLoad = self.onLoad;
         self.onLoad = function() {
             onLoad();
@@ -56,9 +60,17 @@ define([
             window.requestAnimationFrame(draw);
         };
 
+        self.step = function() {
+            client.step();
+        };
+
         // -------------------------------------- private methods -----------------------------------------------------
         var botChange = function(newVal) {
+            if(client === undefined) {
+                return;
+            }
             client.showBot(newVal);
+            self.invalidate();
         };
 
         var draw = function() {
@@ -87,6 +99,8 @@ define([
             client = new SlamClient(background.width, background.height);
             client.invalidate.add(self.invalidate);
             self.robots(client.getRobots());
+            var bot = client.getRobots()[0];
+            self.selectedBot(bot);
 
             self.invalidate();
             client.start();
