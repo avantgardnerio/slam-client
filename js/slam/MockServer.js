@@ -101,7 +101,7 @@ define([
             ctx.translate(pos[0], pos[1]);
             ctx.rotate(dir);
 
-            ctx.strokeStyle = '#00FF00';
+            ctx.strokeStyle = '#000000';
             ctx.strokeRect(-self.SIZE[0]/2*PX_PER_IN, -self.SIZE[1]/2*PX_PER_IN, self.SIZE[0]*PX_PER_IN, self.SIZE[1]*PX_PER_IN);
             ctx.beginPath();
             ctx.moveTo(0, 0);
