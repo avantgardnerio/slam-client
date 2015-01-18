@@ -135,7 +135,7 @@ define([
             console.log('best=' + max + ' worst=' + min);
             var range = max - min;
             robots.forEach(function (robot) {
-                robot.cachedFitness = range > 0 ? (robot.cachedFitness - min) / range : 1;
+                robot.normalizedFitness = range > 0 ? (robot.cachedFitness - min) / range : 1;
             });
 
             // Tell the robots to update their maps based on the new data

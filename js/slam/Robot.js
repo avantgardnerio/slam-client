@@ -8,6 +8,8 @@ define([
                   Map,
                   server) {
 
+    var DRIVE_ERROR = 0.2;
+    var TURN_ERROR = 0.2 * Math.PI / 180;
     var COLOR_GOOD = Math.hsbVec(tinycolor('#00B000'));
     var COLOR_BAD = Math.hsbVec(tinycolor('#600000'));
     var PX_PER_FT = 40; // TODO: Un hard code
@@ -48,7 +50,7 @@ define([
         };
 
         self.drive = function (dist, cb) {
-            dist = Math.nextGaussian(dist, 1 * PX_PER_IN);
+            dist = Math.nextGaussian(dist, DRIVE_ERROR * PX_PER_IN);
             pos[0] += Math.cos(dir) * dist;
             pos[1] += Math.sin(dir) * dist;
             if (cb) {
@@ -57,7 +59,7 @@ define([
         };
 
         self.turn = function (radians, cb) {
-            radians = Math.nextGaussian(radians, 0.034906585 ); // 2 deg
+            radians = Math.nextGaussian(radians, TURN_ERROR );
             dir += radians;
             if (cb) {
                 cb(radians);
@@ -179,7 +181,7 @@ define([
             ctx.translate(pos[0], pos[1]);
             ctx.rotate(dir);
 
-            ctx.strokeStyle = Math.hsbColor(Math.lerp(COLOR_BAD, COLOR_GOOD, self.cachedFitness)).toRgbString();
+            ctx.strokeStyle = Math.hsbColor(Math.lerp(COLOR_BAD, COLOR_GOOD, self.normalizedFitness)).toRgbString();
             ctx.strokeRect(-server.SIZE[0]/2*PX_PER_IN, -server.SIZE[1]/2*PX_PER_IN, server.SIZE[0]*PX_PER_IN, server.SIZE[1]*PX_PER_IN);
             ctx.beginPath();
             ctx.moveTo(0, 0);
