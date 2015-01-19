@@ -199,8 +199,11 @@ define([
                         + '[' + Math.round(zombie.pos[0]) + ',' + Math.round(zombie.pos[1]) + '] '
                         + ' vs [' + Math.round(meanPos[0]) + ',' + Math.round(meanPos[1]) + ']'
                     );
-                    var pos = [Math.nextGaussian(meanPos[0], distMean), Math.nextGaussian(meanPos[1], distMean)];
                     var ang = server.getAngle(); // TODO: Randomness
+                    var pos = meanPos.slice();
+                    var len = Math.nextGaussian(meanPos[0], distMean);
+                    pos[0] += Math.cos(ang) * len;
+                    pos[1] += Math.sin(ang) * len;
                     robot.reset(pos, ang);
                     culled++;
                 }
