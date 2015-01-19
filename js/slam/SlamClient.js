@@ -22,7 +22,7 @@ define([
         self.allBots = true;
 
         // --------------------------------------------- constants ----------------------------------------------------
-        var ROBOT_COUNT = 20;
+        var ROBOT_COUNT = 40;
 
         // --------------------------------------------- events -------------------------------------------------------
         self.invalidate = new signals.Signal();
@@ -79,7 +79,7 @@ define([
                 ctx.rotate(-dir);
                 ctx.translate(-pos[0], -pos[1]);
             });
-            //self.step();
+            self.step();
         };
 
         self.turn = function (radians) {
@@ -118,7 +118,11 @@ define([
                 self.drive(6 * PX_PER_IN);
             } else if (history.length <= 85) {
                 self.turn(-Math.PI / 2);
-            } else if (history.length <= 110) {
+            } else if (history.length <= 115) {
+                self.drive(6 * PX_PER_IN);
+            } else if (history.length <= 116) {
+                self.turn(-Math.PI / 2);
+            } else if (history.length <= 142) {
                 self.drive(6 * PX_PER_IN);
             }
         };
@@ -200,7 +204,7 @@ define([
                 for (var i = 0; i < robots.length; i++) {
                     var robot = robots[i];
                     var deviation = (robot.cachedFitness - stats.fitMean) / stats.fitStdDv;
-                    if (deviation > -1.5) {
+                    if (deviation > -1.2) {
                         goodBots.push(robot);
                         continue;
                     }

@@ -56,7 +56,7 @@ define([
         self.drive = function (dist, cb) {
             var er = DRIVE_ERROR;
             if(name === '0') {
-                er = 0;
+                //er = 0;
             }
             dist = Math.nextGaussian(dist, er * PX_PER_IN);
             pos[0] += Math.cos(dir) * dist;
@@ -69,7 +69,7 @@ define([
         self.turn = function (radians, cb) {
             var er = TURN_ERROR;
             if(name === '0') {
-                er = 0;
+                //er = 0;
             }
             radians = Math.nextGaussian(radians, er);
             dir += radians;
