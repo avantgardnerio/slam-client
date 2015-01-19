@@ -204,6 +204,9 @@ define([
                         goodBots.push(robot);
                         continue;
                     }
+                    if(robot.getAge() < 5) {
+                        continue;
+                    }
                     var zombie = {pos: robot.getPos().slice(), ang: robot.getAngle()};
                     deadBots.push(zombie);
                     console.log('killed robot' + i

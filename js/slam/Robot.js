@@ -50,6 +50,7 @@ define([
             pos = p.slice();
             dir = d;
             map = new Map(width, height);
+            history = [];
         };
 
         self.drive = function (dist, cb) {
@@ -176,7 +177,14 @@ define([
             total /= count;
             history.push(total);
             var hs = history.reduce(function(val, prev) {return prev + val;}, 0);
-            self.cachedFitness = total; //hs / history.length;
+            var runningAvg = 0;
+            var cnt = 0;
+            for(var i = history.length-1; i >= Math.max(history.length-4, 0); i--) {
+                runningAvg += history[i];
+                cnt++;
+            }
+            runningAvg /= cnt;
+            self.cachedFitness = total; // runningAvg //hs / history.length;
 
             lastPos = pos.slice();
 
@@ -201,6 +209,10 @@ define([
                 val = Math.max(val, WALL_PROBABILITY);
             }
             return val;
+        };
+
+        self.getAge = function() {
+            return history.length;
         };
 
         self.getPos = function () {
