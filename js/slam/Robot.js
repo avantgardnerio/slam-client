@@ -8,8 +8,8 @@ define([
                   Map,
                   server) {
 
-    var DRIVE_ERROR = 0.1;
-    var TURN_ERROR = 0.1 * Math.PI / 180;
+    var DRIVE_ERROR = 0.5;
+    var TURN_ERROR = 0.5 * Math.PI / 180;
     var COLOR_GOOD = Math.hsbVec(tinycolor('#00B000'));
     var COLOR_BAD = Math.hsbVec(tinycolor('#600000'));
     var PX_PER_FT = 40; // TODO: Un hard code
@@ -176,7 +176,7 @@ define([
             total /= count;
             history.push(total);
             var hs = history.reduce(function(val, prev) {return prev + val;}, 0);
-            self.cachedFitness = hs / history.length;
+            self.cachedFitness = total; //hs / history.length;
 
             lastPos = pos.slice();
 
@@ -219,16 +219,30 @@ define([
         };
 
         self.drawRobot = function (ctx) {
+            if(!isFinite(pos[0]) || !isFinite(pos[1]) || !isFinite(dir)) {
+                return;
+            }
+            if(isNaN(pos[0]) || isNaN(pos[1]) || isNaN(dir)) {
+                return;
+            }
+            if(!parseInt(pos[0]) || !parseInt(pos[1]) || !parseInt(dir)) {
+                return;
+            }
+
             var oldStroke = ctx.strokeStyle;
             ctx.translate(pos[0], pos[1]);
             ctx.rotate(dir);
 
-            ctx.strokeStyle = Math.hsbColor(Math.lerp(COLOR_BAD, COLOR_GOOD, self.normalizedFitness)).toRgbString();
-            ctx.strokeRect(-server.SIZE[0] / 2 * PX_PER_IN, -server.SIZE[1] / 2 * PX_PER_IN, server.SIZE[0] * PX_PER_IN, server.SIZE[1] * PX_PER_IN);
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(server.SIZE[1] / 2 * PX_PER_IN, 0);
-            ctx.stroke();
+            try {
+                ctx.strokeStyle = Math.hsbColor(Math.lerp(COLOR_BAD, COLOR_GOOD, self.normalizedFitness)).toRgbString();
+                ctx.strokeRect(-server.SIZE[0] / 2 * PX_PER_IN, -server.SIZE[1] / 2 * PX_PER_IN, server.SIZE[0] * PX_PER_IN, server.SIZE[1] * PX_PER_IN);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(server.SIZE[1] / 2 * PX_PER_IN, 0);
+                ctx.stroke();
+            } catch(ex) {
+
+            }
 
             ctx.rotate(-dir);
             ctx.translate(-pos[0], -pos[1]);

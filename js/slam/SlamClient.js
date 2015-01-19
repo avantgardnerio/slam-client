@@ -145,13 +145,11 @@ define([
                 robot.applySamples(samples);
             });
 
-            // Find mean position
+            // Figure out distance and standard deviation
             var meanPos = robots.reduce(function (meanPos, robot) {
                 return glmat.vec2.add(meanPos, meanPos, robot.getPos());
             }, [0, 0]);
             glmat.vec2.scale(meanPos, meanPos, robots.length);
-
-            // Figure out distance and standard deviation
             var dists = robots.map(function (robot) {
                 return glmat.vec2.distance(meanPos, robot.getPos());
             });
@@ -159,7 +157,28 @@ define([
             var distStdDv = Math.stddev(dists);
             console.log('distMean=' + distMean + ' distStdDv=' + distStdDv);
 
-            robots.sort(function(a,b) {return a.cachedFitness - b.cachedFitness;});
+            // Figure out fitness stddev
+            var fitnesses = robots.map(function(robot) {
+                return robot.cachedFitness;
+            });
+            var fitMean = Math.avg(fitnesses);
+            var fitStdDv = Math.stddev(fitnesses);
+            if(fitStdDv > 0.01) {
+                var culled = 0;
+                for(var i = 0; i < robots.length; i++) {
+                    var robot = robots[i];
+                    if(robot.cachedFitness > fitMean - fitStdDv * 1.1) {
+                        continue;
+                    }
+                    var pos = [Math.nextGaussian(meanPos[0], distMean), Math.nextGaussian(meanPos[1], distMean)];
+                    var ang = server.getAngle(); // TODO: Randomness
+                    robot.reset(pos, ang);
+                    culled++;
+                }
+                console.log('culled ' + culled + ' robots');
+            }
+
+            //robots.sort(function(a,b) {return a.cachedFitness - b.cachedFitness;});
 
             doing = false;
             self.invalidate.dispatch();

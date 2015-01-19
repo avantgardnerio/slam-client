@@ -6,6 +6,8 @@ define([
     var MockServer = function MockServer() {
         var self = {};
 
+        var DRIVE_ERROR = 0.5;
+        var TURN_ERROR = 0.5 * Math.PI / 180;
         var TURN_TIME = 0;
         var DRIVE_TIME = 0;
         var SCAN_TIME = 0;
@@ -58,12 +60,14 @@ define([
         };
 
         self.drive = function(dist, cb) {
+            dist = Math.nextGaussian(dist, DRIVE_ERROR * PX_PER_IN);
             pos[0] += Math.cos(dir) * dist;
             pos[1] += Math.sin(dir) * dist;
             setTimeout(function() {cb(dist)}, DRIVE_TIME);
         };
 
         self.turn = function(radians, cb) {
+            radians = Math.nextGaussian(radians, TURN_ERROR);
             dir += radians;
             setTimeout(function() {cb(radians)}, TURN_TIME);
         };
@@ -96,17 +100,30 @@ define([
 
         self.draw = function(ctx) {
             //map.draw(ctx);
+            if(!isFinite(pos[0]) || !isFinite(pos[1]) || !isFinite(dir)) {
+                return;
+            }
+            if(isNaN(pos[0]) || isNaN(pos[1]) || isNaN(dir)) {
+                return;
+            }
+            if(!parseInt(pos[0]) || !parseInt(pos[1]) || !parseInt(dir)) {
+                return;
+            }
 
             var oldStroke = ctx.strokeStyle;
             ctx.translate(pos[0], pos[1]);
             ctx.rotate(dir);
 
-            ctx.strokeStyle = '#000000';
-            ctx.strokeRect(-self.SIZE[0]/2*PX_PER_IN, -self.SIZE[1]/2*PX_PER_IN, self.SIZE[0]*PX_PER_IN, self.SIZE[1]*PX_PER_IN);
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(self.SIZE[1]/2*PX_PER_IN, 0);
-            ctx.stroke();
+            try {
+                ctx.strokeStyle = '#000000';
+                ctx.strokeRect(-self.SIZE[0]/2*PX_PER_IN, -self.SIZE[1]/2*PX_PER_IN, self.SIZE[0]*PX_PER_IN, self.SIZE[1]*PX_PER_IN);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(self.SIZE[1]/2*PX_PER_IN, 0);
+                ctx.stroke();
+            } catch(ex) {
+
+            }
 
             ctx.rotate(-dir);
             ctx.translate(-pos[0], -pos[1]);
