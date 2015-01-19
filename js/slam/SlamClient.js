@@ -124,7 +124,7 @@ define([
         };
 
         var onTurnComplete = function (measuredRads) {
-            console.log('' + history.length + ' finished turn');
+            //console.log('' + history.length + ' finished turn');
             robots.forEach(function (robot) {
                 robot.turn(measuredRads);
             });
@@ -132,7 +132,7 @@ define([
         };
 
         var onDriveComplete = function (measuredDist) {
-            console.log('' + history.length + ' finished drive');
+            //console.log('' + history.length + ' finished drive');
             robots.forEach(function (robot) {
                 robot.drive(measuredDist);
             });
@@ -140,7 +140,7 @@ define([
         };
 
         var onScanComplete = function (samples) {
-            console.log('' + history.length + ' got samples');
+            //console.log('' + history.length + ' got samples');
             history.push({action: 'scan', data: samples});
 
             // Calculate fitness based on how well each robot would have guessed these samples
@@ -153,7 +153,7 @@ define([
             var max = robots.reduce(function (prev, robot) {
                 return Math.max(prev, robot.cachedFitness)
             }, Number.NEGATIVE_INFINITY);
-            console.log('best=' + max + ' worst=' + min);
+            //console.log('best=' + max + ' worst=' + min);
             var range = max - min;
             robots.forEach(function (robot) {
                 robot.normalizedFitness = range > 0 ? (robot.cachedFitness - min) / range : 1;
@@ -168,7 +168,7 @@ define([
             var meanPos = robots.reduce(function (meanPos, robot) {
                 return glmat.vec2.add(meanPos, meanPos, robot.getPos());
             }, [0, 0]);
-            glmat.vec2.scale(meanPos, meanPos, robots.length);
+            glmat.vec2.scale(meanPos, meanPos, 1/robots.length);
             var dists = robots.map(function (robot) {
                 return glmat.vec2.distance(meanPos, robot.getPos());
             });
@@ -187,10 +187,18 @@ define([
                 var culled = 0;
                 for (var i = 0; i < robots.length; i++) {
                     var robot = robots[i];
-                    if (robot.cachedFitness > fitMean - fitStdDv * 1.1) {
+                    var dist = Math.abs(robot.cachedFitness - fitMean) / fitStdDv;
+                    if (dist < 1.1) {
                         continue;
                     }
-                    deadBots.push({pos: robot.getPos().slice(), ang: robot.getAngle()});
+                    var zombie = {pos: robot.getPos().slice(), ang: robot.getAngle()};
+                    deadBots.push(zombie);
+                    console.log('killed robot' + i
+                        + ' at fitness ' + robot.cachedFitness
+                        + ' ' + dist + ' stddev from mean '
+                        + '[' + Math.round(zombie.pos[0]) + ',' + Math.round(zombie.pos[1]) + '] '
+                        + ' vs [' + Math.round(meanPos[0]) + ',' + Math.round(meanPos[1]) + ']'
+                    );
                     var pos = [Math.nextGaussian(meanPos[0], distMean), Math.nextGaussian(meanPos[1], distMean)];
                     var ang = server.getAngle(); // TODO: Randomness
                     robot.reset(pos, ang);
