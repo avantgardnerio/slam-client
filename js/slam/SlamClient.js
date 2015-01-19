@@ -60,6 +60,7 @@ define([
                     robot.drawRobot(ctx);
                 }
             });
+            //self.step();
         };
 
         self.turn = function (radians) {

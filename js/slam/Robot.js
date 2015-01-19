@@ -8,8 +8,8 @@ define([
                   Map,
                   server) {
 
-    var DRIVE_ERROR = 0.2;
-    var TURN_ERROR = 0.2 * Math.PI / 180;
+    var DRIVE_ERROR = 0.1;
+    var TURN_ERROR = 0.1 * Math.PI / 180;
     var COLOR_GOOD = Math.hsbVec(tinycolor('#00B000'));
     var COLOR_BAD = Math.hsbVec(tinycolor('#600000'));
     var PX_PER_FT = 40; // TODO: Un hard code
@@ -35,6 +35,7 @@ define([
         var WALL_PROBABILITY = 0.05; // From sample data
 
         var pos = [800, 700]; // TODO: Hide this knowledge from the robot
+        var lastPos = pos.slice();
         var dir = -Math.PI / 2;
         var map = new Map(width, height);
         var history = [];
@@ -52,7 +53,11 @@ define([
         };
 
         self.drive = function (dist, cb) {
-            dist = Math.nextGaussian(dist, DRIVE_ERROR * PX_PER_IN);
+            var er = DRIVE_ERROR;
+            if(name === '0') {
+                er = 0;
+            }
+            dist = Math.nextGaussian(dist, er * PX_PER_IN);
             pos[0] += Math.cos(dir) * dist;
             pos[1] += Math.sin(dir) * dist;
             if (cb) {
@@ -61,7 +66,11 @@ define([
         };
 
         self.turn = function (radians, cb) {
-            radians = Math.nextGaussian(radians, TURN_ERROR);
+            var er = TURN_ERROR;
+            if(name === '0') {
+                er = 0;
+            }
+            radians = Math.nextGaussian(radians, er);
             dir += radians;
             if (cb) {
                 cb(radians);
@@ -78,6 +87,13 @@ define([
                     // Exclude anything out of range
                     var dist = Math.sqrt(x * x + y * y);
                     if (dist < server.SENSOR_RANGE_MIN * PX_PER_IN || dist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
+                        continue;
+                    }
+
+                    var absPos = [pos[0] + x, pos[1] + y];
+                    var diff = [absPos[0] - lastPos[0], absPos[1] - lastPos[1]];
+                    var lastDist = Math.sqrt(Math.sq(diff[0]) + Math.sq(diff[1]));
+                    if(lastDist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
                         continue;
                     }
 
@@ -114,6 +130,7 @@ define([
                 }
             }
             //console.log('Applied ' + count + ' samples');
+            lastPos = pos.slice();
         };
 
         self.drawSamples = function (ctx) {
@@ -185,6 +202,7 @@ define([
                     tmp += ar[j].obs;
                     if(guess < tmp) {
                         total += Math.sq(Math.abs(sample.inches - ar[j].d));
+                        break;
                     }
                 }
                 count++;
@@ -192,7 +210,7 @@ define([
             total /= count;
             history.push(total);
             var hs = history.reduce(function(val, prev) {return prev + val;}, 0);
-            self.cachedFitness = hs / history.length;
+            self.cachedFitness = total; //hs / history.length;
             return total;
         };
 
