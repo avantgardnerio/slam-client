@@ -199,8 +199,8 @@ define([
                 deadBots = [];
                 for (var i = 0; i < robots.length; i++) {
                     var robot = robots[i];
-                    var deviation = Math.abs(robot.cachedFitness - stats.fitMean) / stats.fitStdDv;
-                    if (deviation < 1.1) {
+                    var deviation = (robot.cachedFitness - stats.fitMean) / stats.fitStdDv;
+                    if (deviation > -1.5) {
                         goodBots.push(robot);
                         continue;
                     }
