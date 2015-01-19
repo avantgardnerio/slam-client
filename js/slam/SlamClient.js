@@ -139,6 +139,33 @@ define([
             server.scan(onScanComplete);
         };
 
+        var getStats = function(robots) {
+            // Figure out distance and standard deviation
+            var meanPos = robots.reduce(function (meanPos, robot) {
+                return glmat.vec2.add(meanPos, meanPos, robot.getPos());
+            }, [0, 0]);
+            glmat.vec2.scale(meanPos, meanPos, 1/robots.length);
+            var dists = robots.map(function (robot) {
+                return glmat.vec2.distance(meanPos, robot.getPos());
+            });
+            var distMean = Math.avg(dists);
+            var distStdDv = Math.stddev(dists);
+
+            // Figure out fitness stddev
+            var fitnesses = robots.map(function (robot) {
+                return robot.cachedFitness;
+            });
+            var fitMean = Math.avg(fitnesses);
+            var fitStdDv = Math.stddev(fitnesses);
+            return {
+                meanPos: meanPos,
+                distMean: distMean,
+                distStdDv: distStdDv,
+                fitMean: fitMean,
+                fitStdDv: fitStdDv
+            };
+        };
+
         var onScanComplete = function (samples) {
             //console.log('' + history.length + ' got samples');
             history.push({action: 'scan', data: samples});
@@ -164,51 +191,42 @@ define([
                 robot.applySamples(samples);
             });
 
-            // Figure out distance and standard deviation
-            var meanPos = robots.reduce(function (meanPos, robot) {
-                return glmat.vec2.add(meanPos, meanPos, robot.getPos());
-            }, [0, 0]);
-            glmat.vec2.scale(meanPos, meanPos, 1/robots.length);
-            var dists = robots.map(function (robot) {
-                return glmat.vec2.distance(meanPos, robot.getPos());
-            });
-            var distMean = Math.avg(dists);
-            var distStdDv = Math.stddev(dists);
-
-            // Figure out fitness stddev
-            var fitnesses = robots.map(function (robot) {
-                return robot.cachedFitness;
-            });
-            var fitMean = Math.avg(fitnesses);
-            var fitStdDv = Math.stddev(fitnesses);
-            console.log('distMean=' + distMean + ' distStdDv=' + distStdDv + ' fitMean=' + fitMean + ' fitStdDv=' + fitStdDv);
-            if (fitStdDv > 0.01) {
+            var stats = getStats(robots);
+            console.log('distMean=' + stats.distMean + ' distStdDv=' + stats.distStdDv + ' fitMean=' + stats.fitMean + ' fitStdDv=' + stats.fitStdDv);
+            if (stats.fitStdDv > 0.01) {
+                var goodBots = [];
+                var badBots = [];
                 deadBots = [];
-                var culled = 0;
                 for (var i = 0; i < robots.length; i++) {
                     var robot = robots[i];
-                    var dist = Math.abs(robot.cachedFitness - fitMean) / fitStdDv;
-                    if (dist < 1.1) {
+                    var deviation = Math.abs(robot.cachedFitness - stats.fitMean) / stats.fitStdDv;
+                    if (deviation < 1.1) {
+                        goodBots.push(robot);
                         continue;
                     }
                     var zombie = {pos: robot.getPos().slice(), ang: robot.getAngle()};
                     deadBots.push(zombie);
                     console.log('killed robot' + i
                         + ' at fitness ' + robot.cachedFitness
-                        + ' ' + dist + ' stddev from mean '
+                        + ' ' + deviation + ' stddev from mean '
                         + '[' + Math.round(zombie.pos[0]) + ',' + Math.round(zombie.pos[1]) + '] '
-                        + ' vs [' + Math.round(meanPos[0]) + ',' + Math.round(meanPos[1]) + ']'
+                        + ' vs [' + Math.round(stats.meanPos[0]) + ',' + Math.round(stats.meanPos[1]) + ']'
                     );
-                    var ang = server.getAngle(); // TODO: Randomness
-                    var pos = meanPos.slice();
-                    var len = Math.nextGaussian(meanPos[0], distMean);
-                    pos[0] += Math.cos(ang) * len;
-                    pos[1] += Math.sin(ang) * len;
-                    robot.reset(pos, ang);
-                    culled++;
+                    badBots.push(robot);
                 }
-                if (culled > 0) {
-                    console.log('culled ' + culled + ' robots');
+                if (badBots.length > 0) {
+                    console.log('culled ' + badBots.length + ' robots');
+                    var stats = getStats(goodBots);
+                    console.log('distMean=' + stats.distMean + ' distStdDv=' + stats.distStdDv + ' fitMean=' + stats.fitMean + ' fitStdDv=' + stats.fitStdDv);
+                    for(var i = 0; i < badBots.length; i++) {
+                        var robot = badBots[i];
+                        var ang = server.getAngle(); // TODO: Randomness
+                        var pos = stats.meanPos.slice();
+                        var len = Math.nextGaussian(stats.distMean, stats.distStdDv);
+                        pos[0] += Math.cos(ang) * len;
+                        pos[1] += Math.sin(ang) * len;
+                        robot.reset(pos, ang);
+                    }
                 }
             }
 
