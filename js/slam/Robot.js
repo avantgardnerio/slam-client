@@ -90,13 +90,6 @@ define([
                         continue;
                     }
 
-                    var absPos = [pos[0] + x, pos[1] + y];
-                    var diff = [absPos[0] - lastPos[0], absPos[1] - lastPos[1]];
-                    var lastDist = Math.sqrt(Math.sq(diff[0]) + Math.sq(diff[1]));
-                    if(lastDist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
-                        continue;
-                    }
-
                     // Find the closest samples and interpolate
                     var ang = ATAN_CACHE[y * COL_SIZE + x];
                     ang = Math.angNorm(ang - dir);
@@ -130,7 +123,6 @@ define([
                 }
             }
             //console.log('Applied ' + count + ' samples');
-            lastPos = pos.slice();
         };
 
         self.drawSamples = function (ctx) {
@@ -187,30 +179,31 @@ define([
                 }
                 var absRad = sample.radians + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
-                var sum = 0;
-                var ar = [];
+                var probability = 1;
                 for (var d = server.SENSOR_RANGE_MIN; d < server.SENSOR_RANGE_MAX; d += 0.5) {
                     var x = pos[0] + vec[0] * d * PX_PER_IN;
                     var y = pos[1] + vec[1] * d * PX_PER_IN;
-                    var obs = oversample(x, y);
-                    sum += obs;
-                    ar.push({obs: obs, d: d});
-                }
-                var guess = Math.random() * sum;
-                var tmp = 0;
-                for(var j = 0; j < ar.length; j++) {
-                    tmp += ar[j].obs;
-                    if(guess < tmp) {
-                        total += Math.sq(Math.abs(sample.inches - ar[j].d));
-                        break;
+
+                    // Ignore samples outside our previously observable space
+                    var diff = [pos[0] - lastPos[0], pos[1] - lastPos[1]];
+                    var lastDist = Math.sqrt(Math.sq(diff[0]) + Math.sq(diff[1]));
+                    if(lastDist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
+                        continue;
                     }
+
+                    var obs = oversample(x, y);
+                    probability *= (1 - obs);
                 }
+                total += probability;
                 count++;
             }
             total /= count;
             history.push(total);
             var hs = history.reduce(function(val, prev) {return prev + val;}, 0);
             self.cachedFitness = total; //hs / history.length;
+
+            lastPos = pos.slice();
+
             return total;
         };
 

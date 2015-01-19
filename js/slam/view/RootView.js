@@ -90,7 +90,9 @@ define([
             }
 
             // Image
-            ctx.drawImage(background, 0, 0, background.width, background.height);
+            //ctx.drawImage(background, 0, 0, background.width, background.height);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, background.width, background.height);
 
             // Have the server draw itself (no-op on the real server, because it doesn't know where it is!)
             client.draw(ctx);
