@@ -130,41 +130,23 @@ define([
                 return;
             }
             var samples = lastSample;
-            for (var y = YMIN; y < YMAX; y++) {
-                for (var x = XMIN; x < XMAX; x++) {
-                    // Exclude anything out of range
-                    var dist = Math.sqrt(x * x + y * y);
-                    if (dist < server.SENSOR_RANGE_MIN * PX_PER_IN || dist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
-                        continue;
-                    }
-
-                    // Find the closest samples and interpolate
-                    var ang = ATAN_CACHE[y * COL_SIZE + x];
-                    ang = Math.angNorm(ang - dir);
-                    var normAng = (ang + Math.PI) / (Math.PI * 2);
-                    var idx = normAng * (samples.length - 1);
-                    var idxLo = Math.max(Math.floor(idx), 0);
-                    var idxHi = Math.min(Math.ceil(idx), samples.length - 1);
-                    var sampleLo = samples[idxLo].inches;
-                    var sampleHi = samples[idxHi].inches;
-
-                    var observation;
-                    if (sampleLo === undefined && sampleHi === undefined) {
-                        observation = 0;
-                    } else {
-                        var sample = sampleLo ? sampleLo : sampleHi;
-                        if (sampleLo !== undefined && sampleHi !== undefined) {
-                            sample = sampleLo * (1 - Math.abs(idx - idxLo)) + sampleHi * (1 - Math.abs(idx - idxHi));
-                        }
-                        sample *= PX_PER_IN;
-                        observation = pdf(dist, sample);
-                    }
-                    if (observation === undefined) {
-                        continue;
-                    }
-                    ctx.fillStyle = 'rgba(0, 0, 0, ' + observation + ')';
-                    ctx.fillRect(pos[0] + x, pos[1] + y, 1, 1);
+            for (var i = 0; i < samples.length; i++) {
+                var sample = samples[i];
+                if (sample.inches === undefined) {
+                    continue;
                 }
+                var absRad = sample.radians + dir;
+                var vec = [Math.cos(absRad), Math.sin(absRad)];
+                var x = pos[0] + vec[0] * sample.inches * PX_PER_IN;
+                var y = pos[1] + vec[1] * sample.inches * PX_PER_IN;
+
+                // Ignore samples outside our previously observable space
+                var lastDist = Math.sqrt(Math.sq(x - lastPos[0]) + Math.sq(y - lastPos[1]));
+                if(lastDist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
+                    continue;
+                }
+                ctx.fillStyle = 'rgba(255, 0, 0, 1)';
+                ctx.fillRect(x, y, 1, 1);
             }
         };
 
@@ -179,28 +161,22 @@ define([
                 }
                 var absRad = sample.radians + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
-                var probability = 1;
-                for (var d = server.SENSOR_RANGE_MIN; d < server.SENSOR_RANGE_MAX; d += 0.5) {
-                    var x = pos[0] + vec[0] * d * PX_PER_IN;
-                    var y = pos[1] + vec[1] * d * PX_PER_IN;
+                var x = pos[0] + vec[0] * sample.inches * PX_PER_IN;
+                var y = pos[1] + vec[1] * sample.inches * PX_PER_IN;
 
-                    // Ignore samples outside our previously observable space
-                    var diff = [pos[0] - lastPos[0], pos[1] - lastPos[1]];
-                    var lastDist = Math.sqrt(Math.sq(diff[0]) + Math.sq(diff[1]));
-                    if(lastDist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
-                        continue;
-                    }
-
-                    var obs = oversample(x, y);
-                    probability *= (1 - obs);
+                // Ignore samples outside our previously observable space
+                var lastDist = Math.sqrt(Math.sq(x - lastPos[0]) + Math.sq(y - lastPos[1]));
+                if(lastDist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
+                    continue;
                 }
+                var probability = oversample(x, y);
                 total += probability;
                 count++;
             }
             total /= count;
             history.push(total);
             var hs = history.reduce(function(val, prev) {return prev + val;}, 0);
-            self.cachedFitness = total; //hs / history.length;
+            self.cachedFitness = hs / history.length;
 
             lastPos = pos.slice();
 
