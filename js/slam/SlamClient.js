@@ -216,7 +216,7 @@ define([
 
             // Tell the robots to update their maps based on the new data
             robots.forEach(function (robot) {
-                robot.applySamples(samples);
+                robot.applySamples(samples, robot.getPos(), robot.getAngle(), robot.getMap());
             });
 
             var stats = getStats(robots);

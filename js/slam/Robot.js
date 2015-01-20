@@ -79,7 +79,7 @@ define([
         };
 
         var lastSample;
-        self.applySamples = function (samples) {
+        self.applySamples = function (samples, pos, dir, map) {
             lastSample = samples;
             // Scan a box that overlaps with the range of the sensor
             var count = 0;
@@ -217,6 +217,10 @@ define([
 
         self.setPos = function(val) {
             pos = val.slice();
+        };
+
+        self.getMap = function() {
+            return map;
         };
 
         self.getPos = function () {
