@@ -240,9 +240,6 @@ define([
                 var curFitness = 0;
                 for (var i = 0; i < sorted.length; i++) {
                     var robot = sorted[i];
-                    if (robot.getAge() < 5) {
-                        continue; // Don't kill children
-                    }
                     curFitness += robot.cachedFitness;
                     var rnd = Math.random() * totalFitness;
                     if(curFitness < rnd) {
@@ -278,7 +275,7 @@ define([
             }
 
             // Tell the robots to update their maps based on the new data
-            robots[0].applySamples(samples, stats.meanPos, server.getAngle(), map);
+            robots[0].applySamples(samples, stats.meanPos, server.getAngle(), map, stats.distStdDv);
 
             //robots.sort(function(a,b) {return a.cachedFitness - b.cachedFitness;});
 

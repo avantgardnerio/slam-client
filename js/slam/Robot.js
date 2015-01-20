@@ -77,7 +77,7 @@ define([
         };
 
         var lastSample;
-        self.applySamples = function (samples, pos, dir, map) {
+        self.applySamples = function (samples, pos, dir, map, posStdDev) {
             lastSample = samples;
             // Scan a box that overlaps with the range of the sensor
             var count = 0;
@@ -108,15 +108,14 @@ define([
                             sample = sampleLo * (1 - Math.abs(idx - idxLo)) + sampleHi * (1 - Math.abs(idx - idxHi));
                         }
                         sample *= PX_PER_IN;
-                        observation = pdf(dist, sample);
+                        observation = pdf(dist, sample, SENSOR_STDDEV + posStdDev);
                     }
                     if (observation === undefined) {
                         continue;
                     }
                     var prior = map.getPixel(pos[0] + x, pos[1] + y);
                     var posterior = Math.conProb(observation, prior, WALL_PROBABILITY);
-                    posterior = Math.min(posterior, 0.9999); // Never allow full certainty
-                    posterior = Math.max(posterior, 0.0001); // Never allow full certainty
+                    posterior = Math.clamp(posterior, 0.001, 0.999); // You can never be too sure...
                     map.setPixel(pos[0] + x, pos[1] + y, posterior);
                     count++;
                 }
@@ -158,27 +157,17 @@ define([
                 if (sample.inches === undefined) {
                     continue;
                 }
-                var samp = sample.inches * PX_PER_IN;
                 var absRad = sample.radians + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
-                var x = pos[0] + vec[0] * samp;
-                var y = pos[1] + vec[1] * samp;
+                var x = pos[0] + vec[0] * sample.inches * PX_PER_IN;
+                var y = pos[1] + vec[1] * sample.inches * PX_PER_IN;
 
                 // Ignore samples outside our previously observable space
                 var lastDist = Math.sqrt(Math.sq(x - lastPos[0]) + Math.sq(y - lastPos[1]));
                 if(lastDist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
                     continue;
                 }
-                var probability = 1.0;
-                var max = Math.min(server.SENSOR_RANGE_MAX * PX_PER_IN, samp + SENSOR_STDDEV);
-                for(var d = server.SENSOR_RANGE_MIN * PX_PER_IN; d < max; d += 0.5) {
-                    x = pos[0] + vec[0] * d;
-                    y = pos[1] + vec[1] * d;
-                    var mapProb = oversample(x, y);
-                    var sampleProb = pdf(d, samp);
-                    var p = 1 - Math.abs(mapProb - sampleProb);
-                    probability *= p;
-                }
+                var probability = oversample(x, y);
                 total += probability;
                 count++;
             }
@@ -211,8 +200,8 @@ define([
             return total;
         };
 
-        var pdf = function (dist, sample) {
-            var val = Math.normDist(dist, sample, SENSOR_STDDEV);
+        var pdf = function (dist, sample, stddev) {
+            var val = Math.normDist(dist, sample, stddev);
             if (dist > sample) {
                 val = Math.max(val, WALL_PROBABILITY);
             }
