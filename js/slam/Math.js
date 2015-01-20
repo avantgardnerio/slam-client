@@ -62,6 +62,12 @@ define([
         return prng();
     };
 
+    Math.clamp = function(val, min, max) {
+        val = Math.min(val, max);
+        val = Math.max(val, min);
+        return val;
+    };
+
     Math.nextGaussian = function (mean, stdev) {
         return Math.rnd_snd() * stdev + mean;
     };
