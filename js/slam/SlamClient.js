@@ -24,11 +24,8 @@ define([
             [550,300],
             [250,300],
             [250,500],
-            [178,543],
-            [240,616],
-            [240,760],
-            [340,840],
-            [800,840]
+            [250,840],
+            [800,830]
         ];
         var waypointIdx = 1;
 
@@ -114,7 +111,7 @@ define([
         };
 
         self.drive = function (inches) {
-            console.log('' + history.length + ' driving');
+            console.log('' + history.length + ' driving ' + inches);
             server.drive(inches, onDriveComplete);
         };
 
@@ -133,7 +130,7 @@ define([
             var nxtPos = waypoints[waypointIdx];
 
             // At destination, pick next waypoint
-            if(glmat.vec2.dist(curPos, nxtPos) < 3) {
+            if(glmat.vec2.dist(curPos, nxtPos) < 3 * PX_PER_IN) {
                 waypointIdx = (waypointIdx+1) % waypoints.length;
                 nxtPos = waypoints[waypointIdx];
             }
@@ -149,8 +146,9 @@ define([
 
             // Drive
             var dist = glmat.vec2.length(delta);
-            dist = Math.min(dist, MAX_DRIVE);
-            self.drive(dist);
+            var stepCount = Math.ceil(dist / MAX_DRIVE);
+            var stepDist = dist / stepCount;
+            self.drive(stepDist);
         };
 
         var onTurnComplete = function (measuredRads) {

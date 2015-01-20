@@ -110,7 +110,7 @@ define([
             if(isNaN(pos[0]) || isNaN(pos[1]) || isNaN(dir)) {
                 return;
             }
-            if(!parseInt(pos[0]) || !parseInt(pos[1]) || !parseInt(dir)) {
+            if(!parseFloat(pos[0]) || !parseFloat(pos[1]) || !parseFloat(dir)) {
                 return;
             }
 
