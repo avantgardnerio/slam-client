@@ -6,6 +6,7 @@ define([
     var MockServer = function MockServer() {
         var self = {};
 
+        var SENSOR_STDDEV = 0.5;
         var DRIVE_ERROR = 0.5;
         var TURN_ERROR = 0.5 * Math.PI / 180;
         var TURN_TIME = 0;
@@ -50,7 +51,7 @@ define([
                         || map.getPixel(x, y+1)
                         || map.getPixel(x+1, y+1)
                     ) {
-                        dist = d;
+                        dist = Math.nextGaussian(d, SENSOR_STDDEV);
                         break;
                     }
                 }
