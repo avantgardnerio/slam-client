@@ -58,6 +58,10 @@ define([
         return (prng() * 2 - 1) + (prng() * 2 - 1) + (prng() * 2 - 1);
     };
 
+    Math.random = function() {
+        return prng();
+    };
+
     Math.nextGaussian = function (mean, stdev) {
         return Math.rnd_snd() * stdev + mean;
     };

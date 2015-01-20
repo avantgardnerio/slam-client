@@ -20,14 +20,14 @@ define([
         var MAX_DRIVE = 6 * PX_PER_IN;
 
         var waypoints = [
-            [800,700],
-            [800,200],
-            [550,200],
-            [550,300],
-            [250,300],
-            [250,500],
-            [250,840],
-            [800,830]
+            [800, 700],
+            [800, 200],
+            [550, 200],
+            [550, 300],
+            [250, 300],
+            [250, 500],
+            [250, 840],
+            [800, 830]
         ];
         var waypointIdx = 1;
 
@@ -67,7 +67,7 @@ define([
             self.allBots = val;
         };
 
-        self.autoDrive = function(val) {
+        self.autoDrive = function (val) {
             self.autoStep = val;
         };
 
@@ -103,7 +103,7 @@ define([
                 ctx.rotate(-dir);
                 ctx.translate(-pos[0], -pos[1]);
             });
-            if(self.autoStep) {
+            if (self.autoStep) {
                 self.step();
             }
         };
@@ -133,8 +133,8 @@ define([
             var nxtPos = waypoints[waypointIdx];
 
             // At destination, pick next waypoint
-            if(glmat.vec2.dist(curPos, nxtPos) < 3 * PX_PER_IN) {
-                waypointIdx = (waypointIdx+1) % waypoints.length;
+            if (glmat.vec2.dist(curPos, nxtPos) < 3 * PX_PER_IN) {
+                waypointIdx = (waypointIdx + 1) % waypoints.length;
                 nxtPos = waypoints[waypointIdx];
             }
 
@@ -142,7 +142,7 @@ define([
             var delta = glmat.vec2.sub([], nxtPos, curPos);
             var curAng = server.getAngle();
             var nxtAng = Math.atan2(delta[1], delta[0]);
-            if(Math.abs(curAng - nxtAng) > 0.01) {
+            if (Math.abs(curAng - nxtAng) > 0.01) {
                 self.turn(nxtAng - curAng);
                 return;
             }
@@ -170,12 +170,12 @@ define([
             server.scan(onScanComplete);
         };
 
-        var getStats = function(robots) {
+        var getStats = function (robots) {
             // Figure out distance and standard deviation
             var meanPos = robots.reduce(function (meanPos, robot) {
                 return glmat.vec2.add(meanPos, meanPos, robot.getPos());
             }, [0, 0]);
-            glmat.vec2.scale(meanPos, meanPos, 1/robots.length);
+            glmat.vec2.scale(meanPos, meanPos, 1 / robots.length);
             var dists = robots.map(function (robot) {
                 return glmat.vec2.distance(meanPos, robot.getPos());
             });
@@ -224,31 +224,43 @@ define([
                 var goodBots = [];
                 var badBots = [];
                 deadBots = [];
-                for (var i = 0; i < robots.length; i++) {
-                    var robot = robots[i];
-                    var deviation = (robot.cachedFitness - stats.fitMean) / stats.fitStdDv;
-                    if (deviation > -1.2) {
-                        goodBots.push(robot);
-                        continue;
+
+                // Collect bots to be killed
+                var sorted = robots.slice().sort(function (a, b) {
+                    return b.cachedFitness - a.cachedFitness;
+                });
+                var totalFitness = robots.reduce(function (prev, robot) {
+                    return prev + robot.cachedFitness;
+                }, 0);
+                var curFitness = 0;
+                for (var i = 0; i < sorted.length; i++) {
+                    var robot = sorted[i];
+                    if (robot.getAge() < 5) {
+                        continue; // Don't kill children
                     }
-                    if(robot.getAge() < 5) {
+                    curFitness += robot.cachedFitness;
+                    var rnd = Math.random() * totalFitness;
+                    if(curFitness < rnd) {
+                        goodBots.push(robot);
                         continue;
                     }
                     var zombie = {pos: robot.getPos().slice(), ang: robot.getAngle()};
                     deadBots.push(zombie);
                     console.log('killed robot' + i
                         + ' at fitness ' + robot.cachedFitness
-                        + ' ' + deviation + ' stddev from mean '
+                        //+ ' ' + deviation + ' stddev from mean '
                         + '[' + Math.round(zombie.pos[0]) + ',' + Math.round(zombie.pos[1]) + '] '
                         + ' vs [' + Math.round(stats.meanPos[0]) + ',' + Math.round(stats.meanPos[1]) + ']'
                     );
                     badBots.push(robot);
                 }
+
+                // Regenerate bots
                 if (badBots.length > 0) {
                     console.log('culled ' + badBots.length + ' robots');
                     stats = getStats(goodBots);
                     console.log('distMean=' + stats.distMean + ' distStdDv=' + stats.distStdDv + ' fitMean=' + stats.fitMean + ' fitStdDv=' + stats.fitStdDv);
-                    for(var i = 0; i < badBots.length; i++) {
+                    for (var i = 0; i < badBots.length; i++) {
                         var robot = badBots[i];
                         var ang = server.getAngle(); // TODO: Randomness
                         var pos = stats.meanPos.slice();
