@@ -14,7 +14,7 @@ How can I try it?
 
 Why JavaScript?
 ---------------
-Well, I have a real Lego robot with Lejos installed. It is a basic design that can drive, turn, and take range readings
+Well, I have a real Lego robot with [Lejos](http://www.lejos.org/) installed. It is a basic design that can drive, turn, and take range readings
 with a IR range finder on a rotating mast. I have a Java server hosted in Tomcat that can relay commands to the robot over
 bluetooth. So, the eventual goal is to turn this into a robot-as-a-service with three web methods:
 
