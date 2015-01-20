@@ -8,6 +8,8 @@ define([
                   Map,
                   server) {
 
+    var SENSOR_STDDEV = 5;
+    var WALL_PROBABILITY = 0.05; // From sample data
     var DRIVE_ERROR = 0.5;
     var TURN_ERROR = 0.5 * Math.PI / 180;
     var COLOR_GOOD = Math.hsbVec(tinycolor('#00B000'));
@@ -30,9 +32,6 @@ define([
 
     var Robot = function Robot(name, width, height, map) {
         var self = {};
-
-        var SENSOR_STDDEV = 5;
-        var WALL_PROBABILITY = 0.05; // From sample data
 
         var pos = [800, 700]; // TODO: Hide this knowledge from the robot
         var lastPos = pos.slice();
