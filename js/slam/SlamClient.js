@@ -12,14 +12,31 @@ define([
     var SlamClient = function SlamClient(width, height) {
         var self = {};
 
-        var PX_PER_FT = 40; // TODO: Un hard code
+        var PX_PER_FT = 30; // TODO: Un hard code
         var IN_PER_FT = 12;
         var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
+        var MAX_DRIVE = 6 * PX_PER_IN;
+
+        var waypoints = [
+            [800,700],
+            [800,200],
+            [550,200],
+            [550,300],
+            [250,300],
+            [250,500],
+            [178,543],
+            [240,616],
+            [240,760],
+            [340,840],
+            [800,840]
+        ];
+        var waypointIdx = 1;
 
         var doing = false;
         var curBot;
         var deadBots = [];
         self.allBots = true;
+        self.autoStep = false;
 
         // --------------------------------------------- constants ----------------------------------------------------
         var ROBOT_COUNT = 40;
@@ -33,8 +50,11 @@ define([
 
         // ------------------------------------------ constructor -----------------------------------------------------
         var ctor = function () {
+            server.setPos(waypoints[0]);
             for (var i = 0; i < ROBOT_COUNT; i++) {
-                robots.push(new Robot('' + i, width, height));
+                var bot = new Robot('' + i, width, height);
+                bot.setPos(waypoints[0]);
+                robots.push(bot);
             }
         };
 
@@ -45,6 +65,10 @@ define([
 
         self.showAll = function (val) {
             self.allBots = val;
+        };
+
+        self.autoDrive = function(val) {
+            self.autoStep = val;
         };
 
         self.start = function () {
@@ -79,7 +103,9 @@ define([
                 ctx.rotate(-dir);
                 ctx.translate(-pos[0], -pos[1]);
             });
-            self.step();
+            if(self.autoStep) {
+                self.step();
+            }
         };
 
         self.turn = function (radians) {
@@ -103,28 +129,28 @@ define([
             }
             doing = true;
 
-            // TODO: Un hard code
-            if (history.length === 0) {
+            var curPos = server.getPos();
+            var nxtPos = waypoints[waypointIdx];
 
-            } else if (history.length <= 24) {
-                self.drive(6 * PX_PER_IN);
-            } else if (history.length <= 25) {
-                self.turn(-Math.PI / 2);
-            } else if (history.length <= 55) {
-                self.drive(6 * PX_PER_IN);
-            } else if (history.length <= 56) {
-                self.turn(-Math.PI / 2);
-            } else if (history.length <= 84) {
-                self.drive(6 * PX_PER_IN);
-            } else if (history.length <= 85) {
-                self.turn(-Math.PI / 2);
-            } else if (history.length <= 115) {
-                self.drive(6 * PX_PER_IN);
-            } else if (history.length <= 116) {
-                self.turn(-Math.PI / 2);
-            } else if (history.length <= 142) {
-                self.drive(6 * PX_PER_IN);
+            // At destination, pick next waypoint
+            if(glmat.vec2.dist(curPos, nxtPos) < 3) {
+                waypointIdx = (waypointIdx+1) % waypoints.length;
+                nxtPos = waypoints[waypointIdx];
             }
+
+            // Turn
+            var delta = glmat.vec2.sub([], nxtPos, curPos);
+            var curAng = server.getAngle();
+            var nxtAng = Math.atan2(delta[1], delta[0]);
+            if(Math.abs(curAng - nxtAng) > 0.01) {
+                self.turn(nxtAng - curAng);
+                return;
+            }
+
+            // Drive
+            var dist = glmat.vec2.length(delta);
+            dist = Math.min(dist, MAX_DRIVE);
+            self.drive(dist);
         };
 
         var onTurnComplete = function (measuredRads) {

@@ -73,6 +73,10 @@ define([
         };
 
         // --------------------------------------- test methods -------------------------------------------------------
+        self.setPos = function(val) {
+            pos = val.slice();
+        };
+
         self.getPos = function() {
             return pos;
         };

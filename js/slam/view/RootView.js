@@ -33,6 +33,7 @@ define([
             cachedFitness: 1
         });
         self.showAll = ko.observable(true);
+        self.autoDrive = ko.observable(false);
 
         // ----------------------------------------------- constructor ------------------------------------------------
         var init = function() {
@@ -48,6 +49,7 @@ define([
 
             self.selectedBot.subscribe(botChange);
             self.showAll.subscribe(allChange);
+            self.autoDrive.subscribe(driveChange);
         };
 
 
@@ -82,6 +84,13 @@ define([
             }
             client.showAll(newVal);
             self.invalidate();
+        };
+
+        var driveChange = function(newVal) {
+            if(client === undefined) {
+                return;
+            }
+            client.autoDrive(newVal);
         };
 
         var draw = function() {

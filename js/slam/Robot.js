@@ -215,6 +215,10 @@ define([
             return history.length;
         };
 
+        self.setPos = function(val) {
+            pos = val.slice();
+        };
+
         self.getPos = function () {
             return pos;
         };
