@@ -8,6 +8,9 @@ What is this?
 -------------
 Like it says above, it is meant to be a SLAM implementation in JavaScript.
 
+How can I try it?
+-----------------
+[click here](http://bgard6977.github.io/slam-client)
 
 Why JavaScript?
 ---------------
