@@ -14,6 +14,8 @@ define([
     var SlamClient = function SlamClient(width, height) {
         var self = {};
 
+        // --------------------------------------------- constants ----------------------------------------------------
+        var ROBOT_COUNT = 100;
         var PX_PER_FT = 30; // TODO: Un hard code
         var IN_PER_FT = 12;
         var PX_PER_IN = PX_PER_FT / IN_PER_FT; // TODO: Sane scaling system
@@ -38,15 +40,13 @@ define([
         self.autoStep = false;
         var map = new Map(width, height);
 
-        // --------------------------------------------- constants ----------------------------------------------------
-        var ROBOT_COUNT = 40;
-
         // --------------------------------------------- events -------------------------------------------------------
         self.invalidate = new signals.Signal();
 
         // ------------------------------------------- private vars ---------------------------------------------------
         var robots = [];
         var history = [];
+        var iterations = 0;
 
         // ------------------------------------------ constructor -----------------------------------------------------
         var ctor = function () {
@@ -109,12 +109,12 @@ define([
         };
 
         self.turn = function (radians) {
-            console.log('' + history.length + ' turning');
+            console.log('' + iterations + ' turning');
             server.turn(radians, onTurnComplete);
         };
 
         self.drive = function (inches) {
-            console.log('' + history.length + ' driving ' + inches);
+            console.log('' + iterations + ' driving ' + inches);
             server.drive(inches, onDriveComplete);
         };
 
@@ -155,7 +155,7 @@ define([
         };
 
         var onTurnComplete = function (measuredRads) {
-            //console.log('' + history.length + ' finished turn');
+            //console.log('' + iterations + ' finished turn');
             robots.forEach(function (robot) {
                 robot.turn(measuredRads);
             });
@@ -163,7 +163,7 @@ define([
         };
 
         var onDriveComplete = function (measuredDist) {
-            //console.log('' + history.length + ' finished drive');
+            //console.log('' + iterations + ' finished drive');
             robots.forEach(function (robot) {
                 robot.drive(measuredDist);
             });
@@ -198,8 +198,9 @@ define([
         };
 
         var onScanComplete = function (samples) {
-            //console.log('' + history.length + ' got samples');
-            history.push({action: 'scan', data: samples});
+            //console.log('' + iterations + ' got samples');
+            //history.push({action: 'scan', data: samples});
+            iterations++;
 
             // Calculate fitness based on how well each robot would have guessed these samples
             robots.forEach(function (robot) {
