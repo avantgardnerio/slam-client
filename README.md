@@ -42,14 +42,14 @@ And the final mitigating factor:
 --------------------------------
 Since the robot-as-a-service is just HTTP and JSON, anyone will be free to re-implement the SLAM-client part in the language of their choice.
 
-Why does the code look like crap?
----------------------------------
+Why is the code so messy?
+-------------------------
 Mostly because this is my 2nd attempt at SLAM, and SLAM seems pretty hard. I'm just throwing code together as fast
 as possible to try the algorithmic concepts behind it. I don't normally code like this, and I'll clean it up as soon
 as I'm sure the premise is sound.
 
-Why do your algorithms suck?
-----------------------------
+Why don't you use more advanced algorithms?
+-------------------------------------------
 Well, because this is my 2nd attempt at SLAM. Call me slow, but it usually takes me three tries to get something right.
 I hope next time I'll have this down. Also, I'm not an academic-type-person (although I'd like to be!). I spend most of my time at
 my day job, and so robotics, machine learning, vector math, and all that fun stuff is just a hobby for now. (though if
