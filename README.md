@@ -64,7 +64,7 @@ my office, and that's really big and it would take a long time to input. And it 
 Okay, but why not just mapping?
 -------------------------------
 Mostly because I have a (relatively) cheap Lego robot. It isn't very accurate in it's sensing or actuation. It cannot
-possible know it's location to a reasonable degree, so SLAM makes the most sense here. I am highly interested in
+possibly know it's location to a reasonable degree, so SLAM makes the most sense here. I am highly interested in
 [this](http://diydrones.com/profiles/blogs/705844:BlogPost:29412) however, and I may try it in the future.
 
 What's the design philosophy behind this?
