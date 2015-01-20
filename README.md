@@ -51,7 +51,7 @@ as I'm sure the premise is sound.
 Why do your algorithms suck?
 ----------------------------
 Well, because this is my 2nd attempt at SLAM. Call me slow, but it usually takes me three tries to get something right.
-I hope next time I'll have this down. Also, I'm not an academic (although I'd like to be!). I spend most of my time at
+I hope next time I'll have this down. Also, I'm not an academic-type-person (although I'd like to be!). I spend most of my time at
 my day job, and so robotics, machine learning, vector math, and all that fun stuff is just a hobby for now. (though if
 you're hiring, I'm interested ;)
 
