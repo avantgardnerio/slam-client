@@ -36,6 +36,7 @@ define([
         var deadBots = [];
         self.allBots = true;
         self.autoStep = false;
+        var map = new Map(width, height);
 
         // --------------------------------------------- constants ----------------------------------------------------
         var ROBOT_COUNT = 40;
@@ -51,7 +52,6 @@ define([
         var ctor = function () {
             server.setPos(waypoints[0]);
             for (var i = 0; i < ROBOT_COUNT; i++) {
-                var map = new Map(width, height);
                 var bot = new Robot('' + i, width, height, map);
                 bot.setPos(waypoints[0]);
                 robots.push(bot);
@@ -217,11 +217,7 @@ define([
                 robot.normalizedFitness = range > 0 ? (robot.cachedFitness - min) / range : 1;
             });
 
-            // Tell the robots to update their maps based on the new data
-            robots.forEach(function (robot) {
-                robot.applySamples(samples, robot.getPos(), robot.getAngle(), robot.getMap());
-            });
-
+            // Cull the bad bots
             var stats = getStats(robots);
             console.log('distMean=' + stats.distMean + ' distStdDv=' + stats.distStdDv + ' fitMean=' + stats.fitMean + ' fitStdDv=' + stats.fitStdDv);
             if (stats.fitStdDv > 0.01) {
@@ -250,7 +246,7 @@ define([
                 }
                 if (badBots.length > 0) {
                     console.log('culled ' + badBots.length + ' robots');
-                    var stats = getStats(goodBots);
+                    stats = getStats(goodBots);
                     console.log('distMean=' + stats.distMean + ' distStdDv=' + stats.distStdDv + ' fitMean=' + stats.fitMean + ' fitStdDv=' + stats.fitStdDv);
                     for(var i = 0; i < badBots.length; i++) {
                         var robot = badBots[i];
@@ -263,6 +259,9 @@ define([
                     }
                 }
             }
+
+            // Tell the robots to update their maps based on the new data
+            robots[0].applySamples(samples, stats.meanPos, server.getAngle(), map);
 
             //robots.sort(function(a,b) {return a.cachedFitness - b.cachedFitness;});
 
