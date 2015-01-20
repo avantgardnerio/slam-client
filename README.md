@@ -44,7 +44,7 @@ Since the robot-as-a-service is just HTTP and JSON, anyone will be free to re-im
 
 Why does the code look like crap?
 ---------------------------------
-Mostly because this is my 2nd attempt at SLAM, and SLAM seems pretty hard. I'm just throwing code together to as fast
+Mostly because this is my 2nd attempt at SLAM, and SLAM seems pretty hard. I'm just throwing code together as fast
 as possible to try the algorithmic concepts behind it. I don't normally code like this, and I'll clean it up as soon
 as I'm sure the premise is sound.
 
