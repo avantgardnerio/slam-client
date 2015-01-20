@@ -40,7 +40,7 @@ Well, yes but:
 
 And the final mitigating factor:
 --------------------------------
-Since the robo-as-a-service is just HTTP and JSON, anyone will be free to re-implement the SLAM-client part in the language of their choice.
+Since the robot-as-a-service is just HTTP and JSON, anyone will be free to re-implement the SLAM-client part in the language of their choice.
 
 Why does the code look like crap?
 ---------------------------------
