@@ -28,7 +28,7 @@ define([
         }
     }
 
-    var Robot = function Robot(name, width, height) {
+    var Robot = function Robot(name, width, height, map) {
         var self = {};
 
         var SENSOR_STDDEV = 5;
@@ -37,7 +37,6 @@ define([
         var pos = [800, 700]; // TODO: Hide this knowledge from the robot
         var lastPos = pos.slice();
         var dir = -Math.PI / 2;
-        var map = new Map(width, height);
         var history = [];
 
         self.name = name;
@@ -49,7 +48,7 @@ define([
         self.reset = function (p, d) {
             pos = p.slice();
             dir = d;
-            map = new Map(width, height);
+            //map = new Map(width, height);
             history = [];
         };
 

@@ -1,11 +1,13 @@
 define([
     'signals',
     'glmat',
+    'slam/Map',
     'slam/Math',
     'slam/Robot',
     'slam/MockServer'
 ], function SlamClient(signals,
                        glmat,
+                       Map,
                        Math,
                        Robot,
                        server) {
@@ -49,7 +51,8 @@ define([
         var ctor = function () {
             server.setPos(waypoints[0]);
             for (var i = 0; i < ROBOT_COUNT; i++) {
-                var bot = new Robot('' + i, width, height);
+                var map = new Map(width, height);
+                var bot = new Robot('' + i, width, height, map);
                 bot.setPos(waypoints[0]);
                 robots.push(bot);
             }
