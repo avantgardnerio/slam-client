@@ -7,8 +7,8 @@ define([
         var self = {};
 
         var SENSOR_STDDEV = 0.5;
-        var DRIVE_ERROR = 0.5;
-        var TURN_ERROR = 0.5 * Math.PI / 180;
+        var DRIVE_ERROR = 0.2;
+        var TURN_ERROR = 0.2 * Math.PI / 180;
         var TURN_TIME = 0;
         var DRIVE_TIME = 0;
         var SCAN_TIME = 0;
@@ -61,15 +61,15 @@ define([
         };
 
         self.drive = function(dist, cb) {
-            dist = Math.nextGaussian(dist, DRIVE_ERROR * PX_PER_IN);
-            pos[0] += Math.cos(dir) * dist;
-            pos[1] += Math.sin(dir) * dist;
+            var d = Math.nextGaussian(dist, DRIVE_ERROR * PX_PER_IN);
+            pos[0] += Math.cos(dir) * d;
+            pos[1] += Math.sin(dir) * d;
             setTimeout(function() {cb(dist)}, DRIVE_TIME);
         };
 
         self.turn = function(radians, cb) {
-            radians = Math.nextGaussian(radians, TURN_ERROR);
-            dir += radians;
+            var r = Math.nextGaussian(radians, TURN_ERROR);
+            dir += r;
             setTimeout(function() {cb(radians)}, TURN_TIME);
         };
 

@@ -8,7 +8,7 @@ define([
                   Map,
                   server) {
 
-    var SENSOR_STDDEV = 5;
+    var SENSOR_STDDEV = 2;
     var WALL_PROBABILITY = 0.05; // From sample data
     var DRIVE_ERROR = 0.5;
     var TURN_ERROR = 0.5 * Math.PI / 180;
