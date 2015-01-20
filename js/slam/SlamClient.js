@@ -22,10 +22,14 @@ define([
         var MAX_DRIVE = 6 * PX_PER_IN;
 
         var waypoints = [
-            [800, 700],
-            [800, 200],
-            [550, 200],
+            [800, 700], // By bottom right door
+            [800, 200], // Top Right of map
+            [550, 200], // between door and counter
             [550, 300],
+            [350, 300],
+            [350, 200],
+            [200, 200],
+            [200, 300],
             [250, 300],
             [250, 500],
             [250, 840],
