@@ -70,6 +70,7 @@ possibly know it's location to a reasonable degree, so SLAM makes the most sense
 What's the design philosophy behind this?
 -----------------------------------------
 Goals:
+
 1. Drop the real robot in the an arbitrary position in a room, and have it build a map on it's own.
 2. Once the map is built (or possibly even during the mapping stage), allow the user to log in from their web browser, and drive the robot around.
 3. Profit
