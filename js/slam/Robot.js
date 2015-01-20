@@ -158,17 +158,27 @@ define([
                 if (sample.inches === undefined) {
                     continue;
                 }
+                var samp = sample.inches * PX_PER_IN;
                 var absRad = sample.radians + dir;
                 var vec = [Math.cos(absRad), Math.sin(absRad)];
-                var x = pos[0] + vec[0] * sample.inches * PX_PER_IN;
-                var y = pos[1] + vec[1] * sample.inches * PX_PER_IN;
+                var x = pos[0] + vec[0] * samp;
+                var y = pos[1] + vec[1] * samp;
 
                 // Ignore samples outside our previously observable space
                 var lastDist = Math.sqrt(Math.sq(x - lastPos[0]) + Math.sq(y - lastPos[1]));
                 if(lastDist > server.SENSOR_RANGE_MAX * PX_PER_IN) {
                     continue;
                 }
-                var probability = oversample(x, y);
+                var probability = 1.0;
+                var max = Math.min(server.SENSOR_RANGE_MAX * PX_PER_IN, samp + SENSOR_STDDEV);
+                for(var d = server.SENSOR_RANGE_MIN * PX_PER_IN; d < max; d += 0.5) {
+                    x = pos[0] + vec[0] * d;
+                    y = pos[1] + vec[1] * d;
+                    var mapProb = oversample(x, y);
+                    var sampleProb = pdf(d, samp);
+                    var p = 1 - Math.abs(mapProb - sampleProb);
+                    probability *= p;
+                }
                 total += probability;
                 count++;
             }
