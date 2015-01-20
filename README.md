@@ -71,8 +71,7 @@ What's the design philosophy behind this?
 -----------------------------------------
 Goals:
 1. Drop the real robot in the an arbitrary position in a room, and have it build a map on it's own.
-2. Once the map is built (or possible even during the mapping stage), allow the user to log in from their web browser,
-and drive the robot around.
+2. Once the map is built (or possibly even during the mapping stage), allow the user to log in from their web browser, and drive the robot around.
 3. Profit
 
 Done:
@@ -91,7 +90,7 @@ Done:
 
 TODO:
 * Improve the fitness function - don't just check the distance value, turn it into a probability distribution function and compare that with the results of a cast ray on the belief map
-* Improve the selection function - right now it is following the probabilistic model, which judges based on standard deviation of fitness, and breeds based on normal distribution of position it might be better to use an algorithm more closely inspired by natural selection. The current method never seems to get really accurate (or really inaccurate) - it mostly hovers around a 16 pixel spread.
+* Improve the selection function - right now it is following the probabilistic model, which judges based on standard deviation of fitness, and breeds based on normal distribution of position. It might be better to use an algorithm more closely inspired by natural selection. The current method never seems to get really accurate (or really inaccurate) - it mostly hovers around a 16 pixel spread.
 * Increase the error until the simulation can deal with greater error than will be encountered in real life
 * Wait until really awesome results are observed: linear distributions along 1d edges, point distribution near 2d corners, gaussian distributions in open space, collapsing near landmarks, expanding in the open
 * Test to see if the map-per-robot paradigm can be replaced with one shared map, where samples are applied based on the mean position (freeing up tons of memory)
